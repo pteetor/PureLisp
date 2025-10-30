@@ -1,0 +1,93 @@
+//
+//  atom space and functions
+//
+
+#include "consVM.h"
+
+static const int SPACE_SIZE = 1000;
+static const int WORD_SIZE = sizeof(int);
+
+static char space[SPACE_SIZE];
+static int free_space = 0;
+static Atom* chain = NULL;
+
+//
+// Global variables
+//
+Atom* nil;
+Atom* a_t;
+Atom* a_quote;
+Atom* a_cond;
+Atom* a_atom;
+Atom* a_car;
+Atom* a_cdr;
+Atom* a_cons;
+Atom* a_eq;
+
+void init_atoms()
+{
+  free_space = 0;
+  chain = NULL;
+
+  nil = atom("nil");
+  a_t = atom("t");
+  a_quote = atom("quote");
+  a_cond = atom("cond");
+  a_atom = atom("atom");
+  a_car = atom("car");
+  a_cdr = atom("cdr");
+  a_cons = atom("cons");
+  a_eq = atom("eq");
+}
+
+static Atom* find_atom(const char* p, int len)
+{
+  Atom* q = chain;
+  while(q != NULL)
+  {
+    if (q->n_char == len && std::memcmp(p, q->string, len) == 0) {
+      break;
+    }
+    q = q->next;
+  }
+  return q;
+}
+
+Atom* atom(const char* p)
+{
+  return atom(p, std::strlen(p));
+}
+
+Atom* atom(const char* p, int len)
+{
+  Atom* atm = find_atom(p, len);
+  if (atm != NULL) {
+    return atm;
+  }
+
+  // Round 'len' to next word boundary
+  int string_alloc = ((len + WORD_SIZE - 1) / WORD_SIZE) * WORD_SIZE;
+  int n_bytes = sizeof(Atom) + string_alloc;
+
+  atm = (Atom*) &space[free_space];
+  free_space = free_space + n_bytes;
+
+  if (free_space >= SPACE_SIZE)
+  {
+    fatal("atom space exhausted");
+  }
+
+  atm->type = ATOM;
+  atm->next = chain;
+  chain = atm;
+
+  atm->n_char = len;
+  std::memcpy(atm->string, p, len);
+
+  return atm;
+}
+
+void print(Atom* p)
+{
+  std::cout.write(p->string, p->n_char);
+}

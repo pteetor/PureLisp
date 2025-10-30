@@ -1,0 +1,6 @@
+.Rproj.user/
+*.o
+consvm
+sizes
+text-io.c
+text-io.cpp

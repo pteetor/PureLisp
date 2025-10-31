@@ -35,7 +35,8 @@ struct Atom: public Cell
 // Global variables
 //
 extern Atom* nil;
-extern Atom* a_t, *a_quote, *a_cond, *a_atom, *a_car, *a_cdr, *a_cons, *a_eq;
+extern Atom *a_t, *a_quote, *a_cond, *a_atom,
+            *a_car, *a_cdr, *a_cons, *a_eq;
 
 //
 // Global functions ----
@@ -57,8 +58,6 @@ extern void print(Cell* p);
 extern void fatal(const char* msg);
 
 //
-// read() function
+// read_sexpr() function
 //
-extern void init_reader();
-extern Cell* read();
-
+extern Cell* read_sexpr(bool top_level = false);

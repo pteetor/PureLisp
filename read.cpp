@@ -1,5 +1,5 @@
 //
-//  read_sexpr() function and supporting functions
+//  read() function and supporting functions
 //
 
 #include "consVM.h"
@@ -41,7 +41,7 @@ static bool fill_buffer();
 
 // Here, 'token' is at the token before the sexpr.
 // Leave 'token' at the last token of the sexpr.
-Cell* read_sexpr(bool top_level)
+Cell* read(bool top_level)
 {
   if (top_level) {
     init_reader();

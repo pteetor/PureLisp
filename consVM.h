@@ -58,6 +58,6 @@ extern void print(Cell* p);
 extern void fatal(const char* msg);
 
 //
-// read_sexpr() function
+// Sexpr reader
 //
-extern Cell* read_sexpr(bool top_level = false);
+extern Cell* read(bool top_level = false);

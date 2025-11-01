@@ -28,6 +28,11 @@ Cons* cons(Cell* car, Cell* cdr)
   return p;
 }
 
+bool is_cons(Cell* p)
+{
+  return (p->type == CONS);
+}
+
 Cell* car(Cell* p)
 {
   if (p->type != CONS)

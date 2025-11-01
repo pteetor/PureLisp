@@ -87,6 +87,11 @@ Atom* atom(const char* p, int len)
   return atm;
 }
 
+bool is_atom(Cell* p)
+{
+  return (p->type == ATOM);
+}
+
 void print(Atom* p)
 {
   std::cout.write(p->string, p->n_char);

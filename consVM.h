@@ -47,11 +47,13 @@ extern Cons* cons(Cell* car, Cell* cdr);
 extern Cell* car(Cell* p);
 extern Cell* cdr(Cell* p);
 extern void print(Cons* p);
+extern bool is_cons(Cell* p);
 
 extern void init_atoms();
 extern Atom* atom(const char* p);
 extern Atom* atom(const char* p, int len);
 extern void print(Atom* p);
+extern bool is_atom(Cell* p);
 
 extern void init_stack();
 extern Cell* top();
@@ -62,6 +64,7 @@ extern void print(Cell* p);
 
 extern Cell* eval(Cell* e, Cell* a);
 
+extern bool is_true(Cell*);
 extern void fatal(const char* msg);
 
 //

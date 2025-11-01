@@ -47,7 +47,6 @@ Cell* read(bool top_level)
     init_reader();
   }
 
-  // X - ADDED
   next_token();
   if (token == END_OF_FILE) {
     return NULL;

@@ -53,6 +53,11 @@ extern Atom* atom(const char* p);
 extern Atom* atom(const char* p, int len);
 extern void print(Atom* p);
 
+extern void init_stack();
+extern Cell* top();
+extern void push(Cell*);
+extern Cell* pop();
+
 extern void print(Cell* p);
 
 extern Cell* eval(Cell* e, Cell* a);

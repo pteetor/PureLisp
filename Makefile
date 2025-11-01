@@ -1,6 +1,6 @@
 HDRS = consVM.h
 
-SRC = atom.cpp cell.cpp cons.cpp main.cpp read.cpp utils.cpp
+SRC = atom.cpp cell.cpp cons.cpp eval.cpp main.cpp read.cpp utils.cpp
 
 consvm: $(HDRS) $(SRC)
 	g++ -g -o consvm $(SRC)

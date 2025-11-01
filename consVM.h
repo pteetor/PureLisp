@@ -55,6 +55,8 @@ extern void print(Atom* p);
 
 extern void print(Cell* p);
 
+extern Cell* eval(Cell* e, Cell* a);
+
 extern void fatal(const char* msg);
 
 //

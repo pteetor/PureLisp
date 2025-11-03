@@ -34,7 +34,7 @@ static Cell* assoc(Cell* x, Cell* e)
   trace("assoc", x);
 
   if (e == nil) {
-    return fatal("assoc: Undefined variable");
+    return fatal("assoc: Undefined variable", x);
     // REMOVED: return nil;
   } else if (x == car(car(e))) {
     return cdr(car(e));
@@ -66,8 +66,11 @@ static Cell* pairlis(Cell* x, Cell* y, Cell* e)
   if (x == nil && y == nil) {
     return e;
   }
-  if (x == nil || y == nil) {
-    return fatal("pairlis: Arguments/parameters mismatch");
+  if (x == nil) {
+    return fatal("pairlis: Too many arguments");
+  }
+  if (y == nil) {
+    return fatal("pairlis: Missing arguments");
   }
   return cons(cons(car(x), car(y)),
               pairlis(cdr(x), cdr(y), e) );

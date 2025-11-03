@@ -69,7 +69,7 @@ extern Cell* build_globals();
 extern Cell* eval(Cell* e, Cell* a);
 
 extern bool is_true(Cell*);
-extern Cell* fatal(const char* msg);
+extern Cell* fatal(const char* msg, Cell* cell = NULL);
 extern void trace(const char* tag, Cell* cell = NULL);
 
 //

@@ -14,11 +14,19 @@ bool tracing = false;
 // Global functions
 //
 
-Cell* fatal(const char* msg)
+Cell* fatal(const char* msg, Cell* cell)
 {
-  std::cerr << msg << std::endl;
+  std::cerr << msg;
+  if (cell != NULL) {
+    if (is_atom(cell)) {
+      std::cout << " [";
+      print(cell);
+      std::cout << "]";
+    }
+  }
+  std::cout << std::endl;
   std::exit(1);
-  return nil;
+  return nil;   // Keep compiler happy
 }
 
 bool is_true(Cell* p)

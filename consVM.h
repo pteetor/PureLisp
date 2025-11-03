@@ -63,6 +63,7 @@ extern Cell* pop();
 
 extern void print(Cell* p);
 
+extern Cell* build_globals();
 extern Cell* eval(Cell* e, Cell* a);
 
 extern bool is_true(Cell*);

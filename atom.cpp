@@ -25,6 +25,8 @@ Atom* a_cons;
 Atom* a_eq;
 Atom* a_lambda;
 
+static Atom* find_atom(const char* p, int len);
+
 void init_atoms()
 {
   free_space = 0;
@@ -40,19 +42,6 @@ void init_atoms()
   a_cons = atom("cons");
   a_eq = atom("eq");
   a_lambda = atom("lambda");
-}
-
-static Atom* find_atom(const char* p, int len)
-{
-  Atom* q = chain;
-  while(q != NULL)
-  {
-    if (q->n_char == len && std::memcmp(p, q->string, len) == 0) {
-      break;
-    }
-    q = q->next;
-  }
-  return q;
 }
 
 Atom* atom(const char* p)
@@ -87,6 +76,19 @@ Atom* atom(const char* p, int len)
   std::memcpy(atm->string, p, len);
 
   return atm;
+}
+
+static Atom* find_atom(const char* p, int len)
+{
+  Atom* q = chain;
+  while(q != NULL)
+  {
+    if (q->n_char == len && std::memcmp(p, q->string, len) == 0) {
+      break;
+    }
+    q = q->next;
+  }
+  return q;
 }
 
 bool is_atom(Cell* p)

@@ -40,6 +40,10 @@ static Cell* assoc(Cell* x, Cell* e)
 
 static Cell* evcon(Cell* c, Cell* e)
 {
+  if (c == nil) {
+    fatal("evcon: Conditionals exhausted");
+  }
+
   if (is_true(eval(car(car(c)), e))) {
     return eval(car(cdr(car(c))), e);
   } else {
@@ -50,12 +54,14 @@ static Cell* evcon(Cell* c, Cell* e)
 // a.k.a "zip"
 static Cell* pairlis(Cell* x, Cell* y, Cell* e)
 {
-  if (x == nil) {
-    return e;
-  } else {
-    return cons(cons(car(x), car(y)),
-                pairlis(cdr(x), cdr(y), e) );
+  if (x == nil && y == nil) {
+      return e;
+    }
+  if (x == nil || y == nil) {
+    return fatal("pairlis: Arguments/parameters mismatch");
   }
+  return cons(cons(car(x), car(y)),
+                pairlis(cdr(x), cdr(y), e) );
 }
 
 static Cell* evlis(Cell* m, Cell* a)
@@ -85,7 +91,7 @@ static Cell* apply(Cell* fn, Cell* x, Cell* a)
       return apply(eval(fn,a), x, a);
     }
   } else if (car(fn) == a_lambda) {
-    return eval(car(car(cdr(fn))), pairlis(car(cdr(fn)), x, a));
+    return eval(car(cdr(cdr(fn))), pairlis(car(cdr(fn)), x, a));
   } else {
     return fatal("apply: Not a function");
   }

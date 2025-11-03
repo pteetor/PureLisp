@@ -10,10 +10,11 @@ int main(int argc, char** argv)
   init_cons();
 
   Cell* p = read(true);
+  Cell* e;
   while (p != NULL) {
-    std::cout << "S-expr: ";
-    print(p);
-    std::cout << std::endl;
+    std::cout << "S-expr: "; print(p); std::cout << std::endl;
+    e = eval(p, nil);
+    std::cout << "Eval: "; print(e); std::cout << std::endl;
     p = read(true);
   }
 

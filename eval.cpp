@@ -70,7 +70,7 @@ static Cell* evlis(Cell* m, Cell* a)
 
 static Cell* apply(Cell* fn, Cell* x, Cell* a)
 {
-  if (is_atom(x)) {
+  if (is_atom(fn)) {
     if (fn == a_car) {
       return car(car(x));
     } else if (fn == a_cdr) {
@@ -87,7 +87,6 @@ static Cell* apply(Cell* fn, Cell* x, Cell* a)
   } else if (car(fn) == a_lambda) {
     return eval(car(car(cdr(fn))), pairlis(car(cdr(fn)), x, a));
   } else {
-    fatal("apply: Cannot understand function");
-    return nil;   // kepp compiler happy
+    return fatal("apply: Not a function");
   }
 }

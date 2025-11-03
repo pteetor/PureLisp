@@ -12,6 +12,8 @@ static Cell* apply(Cell* fn, Cell* x, Cell* a);
 
 Cell* eval(Cell* e, Cell* a)
 {
+  trace("eval", e);
+
   if (is_atom(e)) {
     return assoc(e, a);
   }
@@ -29,8 +31,11 @@ Cell* eval(Cell* e, Cell* a)
 
 static Cell* assoc(Cell* x, Cell* e)
 {
+  trace("assoc", x);
+
   if (e == nil) {
     return fatal("assoc: Undefined variable");
+    // REMOVED: return nil;
   } else if (x == car(car(e))) {
     return cdr(car(e));
   } else {
@@ -40,6 +45,8 @@ static Cell* assoc(Cell* x, Cell* e)
 
 static Cell* evcon(Cell* c, Cell* e)
 {
+  trace("evcon");
+
   if (c == nil) {
     fatal("evcon: Conditionals exhausted");
   }
@@ -54,28 +61,33 @@ static Cell* evcon(Cell* c, Cell* e)
 // a.k.a "zip"
 static Cell* pairlis(Cell* x, Cell* y, Cell* e)
 {
+  trace("pairlis", (is_cons(x) ? car(x) : x));
+
   if (x == nil && y == nil) {
-      return e;
-    }
+    return e;
+  }
   if (x == nil || y == nil) {
     return fatal("pairlis: Arguments/parameters mismatch");
   }
   return cons(cons(car(x), car(y)),
-                pairlis(cdr(x), cdr(y), e) );
+              pairlis(cdr(x), cdr(y), e) );
 }
 
 static Cell* evlis(Cell* m, Cell* a)
 {
+  trace("evlis");
+
   if (m == nil) {
     return nil;
-  } else {
-    return cons(eval(car(m), a),
-                evlis(cdr(m), a) );
   }
+  return cons(eval(car(m), a),
+              evlis(cdr(m), a) );
 }
 
 static Cell* apply(Cell* fn, Cell* x, Cell* a)
 {
+  trace("apply", fn);
+
   if (is_atom(fn)) {
     if (fn == a_car) {
       return car(car(x));

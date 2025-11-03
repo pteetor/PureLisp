@@ -4,7 +4,7 @@
 
 #include "consVM.h"
 
-const int N_CONS = 1000;
+const int N_CONS = 1000 * 1000;
 
 static Cons heap[1000];
 static int free_cons;

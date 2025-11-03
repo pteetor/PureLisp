@@ -39,6 +39,8 @@ extern Atom *a_t, *a_quote, *a_cond, *a_atom,
             *a_car, *a_cdr, *a_cons, *a_eq,
             *a_lambda;
 
+extern bool tracing;
+
 //
 // Global functions ----
 //
@@ -68,6 +70,7 @@ extern Cell* eval(Cell* e, Cell* a);
 
 extern bool is_true(Cell*);
 extern Cell* fatal(const char* msg);
+extern void trace(const char* tag, Cell* cell = NULL);
 
 //
 // Sexpr reader

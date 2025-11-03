@@ -19,5 +19,5 @@ int main(int argc, char** argv)
     p = read(true);
   }
 
-  std::cout << "End of sexpr stream" << std::endl;
+  // std::cout << "End of sexpr stream" << std::endl;
 }

@@ -12,13 +12,25 @@ static Cell* apply(Cell* fn, Cell* x, Cell* a);
 
 Cell* eval(Cell* e, Cell* a)
 {
-  // ...
+  if (is_atom(e)) {
+    return assoc(e, a);
+  }
+  if (is_atom(car(e))) {
+    if (car(e) == a_quote) {
+      return car(cdr(e));
+    }
+    if (car(e) == a_cond) {
+      return evcon(cdr(e), a);
+    }
+    return apply(car(e), evlis(cdr(e), a), a);
+  }
+  return apply(car(e), evlis(cdr(e), a), a);
 }
 
 static Cell* assoc(Cell* x, Cell* e)
 {
   if (e == nil) {
-    return nil;
+    return fatal("assoc: Undefined variable");
   } else if (x == car(car(e))) {
     return cdr(car(e));
   } else {
@@ -58,5 +70,24 @@ static Cell* evlis(Cell* m, Cell* a)
 
 static Cell* apply(Cell* fn, Cell* x, Cell* a)
 {
-  // ...
+  if (is_atom(x)) {
+    if (fn == a_car) {
+      return car(car(x));
+    } else if (fn == a_cdr) {
+      return cdr(car(x));
+    } else if (fn == a_atom) {
+      return (is_atom(car(x)) ? a_t : nil);
+    } else if (fn == a_cons) {
+      return cons(car(x), car(cdr(x)));
+    } else if (fn == a_eq) {
+      return (car(x) == car(cdr(x)) ? a_t : nil);
+    } else {
+      return apply(eval(fn,a), x, a);
+    }
+  } else if (car(fn) == a_lambda) {
+    return eval(car(car(cdr(fn))), pairlis(car(cdr(fn)), x, a));
+  } else {
+    fatal("apply: Cannot understand function");
+    return nil;   // kepp compiler happy
+  }
 }

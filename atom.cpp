@@ -23,6 +23,7 @@ Atom* a_car;
 Atom* a_cdr;
 Atom* a_cons;
 Atom* a_eq;
+Atom* a_lambda;
 
 void init_atoms()
 {
@@ -38,6 +39,7 @@ void init_atoms()
   a_cdr = atom("cdr");
   a_cons = atom("cons");
   a_eq = atom("eq");
+  a_lambda = atom("lambda");
 }
 
 static Atom* find_atom(const char* p, int len)

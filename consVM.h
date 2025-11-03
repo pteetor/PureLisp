@@ -36,7 +36,8 @@ struct Atom: public Cell
 //
 extern Atom* nil;
 extern Atom *a_t, *a_quote, *a_cond, *a_atom,
-            *a_car, *a_cdr, *a_cons, *a_eq;
+            *a_car, *a_cdr, *a_cons, *a_eq,
+            *a_lambda;
 
 //
 // Global functions ----
@@ -65,7 +66,7 @@ extern void print(Cell* p);
 extern Cell* eval(Cell* e, Cell* a);
 
 extern bool is_true(Cell*);
-extern void fatal(const char* msg);
+extern Cell* fatal(const char* msg);
 
 //
 // Sexpr reader

@@ -157,6 +157,11 @@ static void audit_env(Cell* a)
 
 // -------------------------------------
 
+Cell* make_assoc(Cell* name, Cell* value)
+{
+  return cons(cons(name, value), nil);
+}
+
 TEST_CASE("test assoc()") {
   Cell* foo = atom("foo");
   Cell* fum = atom("fum");
@@ -164,3 +169,17 @@ TEST_CASE("test assoc()") {
 
   CHECK(assoc(foo, env) == fum);
 }
+
+TEST_CASE("eval can evaluate an atom") {
+  Cell* name = atom("x");
+  Cell* value = atom("foo");
+  Cell* env = make_assoc(name, value);
+
+  CHECK(eval(name, env) == value);
+}
+
+// ((lambda () (quote foo))) should yield 'foo'
+// TEST_CASE("apply can handle a nullary function") {
+//   Cell* foo = atom("foo");
+//   Cell* expr = cons(...);
+// }

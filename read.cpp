@@ -146,11 +146,10 @@ static Token scan_symbol()
   return (token = SYMBOL);
 }
 
-// TODO: To implement comments, let ';' force buffer flush and reload
 static char* find_token_start()
 {
   while (1) {
-    while (*bufp) {
+    while (*bufp && *bufp != ';') {   // ';' starts a comment
       if (!std::isspace(*bufp)) {
         return bufp;
       }

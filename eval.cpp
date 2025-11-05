@@ -2,6 +2,7 @@
 //  eval() and friends
 //
 
+#include "doctest.h"
 #include "consVM.h"
 
 static Cell* assoc(Cell* x, Cell* e);
@@ -152,4 +153,14 @@ static void audit_env(Cell* a)
     }
     a = cdr(a);
   }
+}
+
+// -------------------------------------
+
+TEST_CASE("test assoc()") {
+  Cell* foo = atom("foo");
+  Cell* fum = atom("fum");
+  Cell* env = cons(cons(foo, fum), nil);
+
+  CHECK(assoc(foo, env) == fum);
 }

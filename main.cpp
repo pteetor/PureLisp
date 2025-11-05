@@ -2,6 +2,9 @@
 // ConsVM - main
 //
 
+#define DOCTEST_CONFIG_IMPLEMENT
+#include "doctest.h"
+
 #include <fstream>
 #include "consVM.h"
 

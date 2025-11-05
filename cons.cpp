@@ -6,7 +6,7 @@
 
 const int N_CONS = 1000 * 1000;
 
-static Cons heap[1000];
+static Cons heap[N_CONS];
 static int free_cons;
 
 void init_cons()
@@ -20,6 +20,10 @@ Cons* cons(Cell* car, Cell* cdr)
   {
     fatal("Heap space exhausted");
   }
+
+  // Sanity checks
+  validate_cell_ptr(car);
+  validate_cell_ptr(cdr);
 
   Cons* p = &heap[free_cons++];
   p->type = CONS;
@@ -76,8 +80,31 @@ void print(Cons* p)
       q = r->cdr;
       break;
     default:
+      // DEBUG
+      std::cout << "Cell type: " << q->type << std::endl;
+
       fatal("print: invalid cell type");
     }
   }
   std::cout << ")";
+}
+
+void audit_cons()
+{
+  int i = 0;
+  while (i < free_cons)
+  {
+    Cell* p = &heap[i];
+    if (p->type != CONS)
+    {
+      fatal("audit_cons: Bad type");
+    }
+    if (car(p)->type != ATOM && car(p)->type != CONS) {
+      fatal("audit_cons: Bad car ptr");
+    }
+    if (cdr(p)->type != ATOM && cdr(p)->type != CONS) {
+      fatal("audit_cons: Bad cdr ptr");
+    }
+    i++;
+  }
 }

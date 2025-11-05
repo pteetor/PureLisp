@@ -9,6 +9,7 @@ static Cell* evcon(Cell* c, Cell* e);
 static Cell* pairlis(Cell* v, Cell* a, Cell* e);
 static Cell* evlis(Cell* a, Cell* b);
 static Cell* apply(Cell* fn, Cell* x, Cell* a);
+static void audit_env(Cell* a);
 
 Cell* eval(Cell* e, Cell* a)
 {
@@ -31,12 +32,23 @@ Cell* eval(Cell* e, Cell* a)
 
 static Cell* assoc(Cell* x, Cell* e)
 {
-  trace("assoc", x);
+  trace("assoc", x, e);
 
   if (e == nil) {
     return fatal("assoc: Undefined variable", x);
-    // REMOVED: return nil;
-  } else if (x == car(car(e))) {
+  }
+
+  // Sanity checks
+  // if (!is_cons(e)) {
+  //   println(e);
+  //   fatal("assoc: Non-cons environment");
+  // }
+  // if (!is_cons(car(e))) {
+  //   println(e);
+  //   fatal("assoc: Ill-formed environment");
+  // }
+
+  if (x == car(car(e))) {
     return cdr(car(e));
   } else {
     return assoc(x, cdr(e));
@@ -61,7 +73,9 @@ static Cell* evcon(Cell* c, Cell* e)
 // a.k.a "zip"
 static Cell* pairlis(Cell* x, Cell* y, Cell* e)
 {
-  trace("pairlis", (is_cons(x) ? car(x) : x));
+  trace("pairlis",
+        (is_cons(x) ? car(x) : x),
+        (is_cons(y) ? car(y) : x) );
 
   if (x == nil && y == nil) {
     return e;
@@ -72,6 +86,12 @@ static Cell* pairlis(Cell* x, Cell* y, Cell* e)
   if (y == nil) {
     return fatal("pairlis: Missing arguments");
   }
+
+  // Sanity check
+  if (!is_atom(car(x))) {
+    fatal("pairlis: Non-atom in parameters");
+  }
+
   return cons(cons(car(x), car(y)),
               pairlis(cdr(x), cdr(y), e) );
 }
@@ -89,7 +109,7 @@ static Cell* evlis(Cell* m, Cell* a)
 
 static Cell* apply(Cell* fn, Cell* x, Cell* a)
 {
-  trace("apply", fn);
+  trace("apply", fn, (is_atom(x) ? x : car(x)));
 
   if (is_atom(fn)) {
     if (fn == a_car) {
@@ -109,5 +129,27 @@ static Cell* apply(Cell* fn, Cell* x, Cell* a)
     return eval(car(cdr(cdr(fn))), pairlis(car(cdr(fn)), x, a));
   } else {
     return fatal("apply: Not a function");
+  }
+}
+
+// ------------------------------------
+
+static void audit_env(Cell* a)
+{
+  while (a != nil)
+  {
+    if (!is_cons(a)) {
+      println(a);
+      fatal("audit_env: Ill-formed environment");
+    }
+    if (!is_cons(car(a))) {
+      println(a);
+      fatal("audit_env: Ill-formed pair");
+    }
+    if (!is_atom(car(car(a)))) {
+      println(a);
+      fatal("audit_env: Non-atom in environment");
+    }
+    a = cdr(a);
   }
 }

@@ -15,6 +15,14 @@ void print(Cell* p)
     print((Cons*) p);
     break;
   default:
+    // DEBUG
+    std::cout << "Cell type: " << p->type << std::endl;
     fatal("print: invalid cell type");
   }
+}
+
+void println(Cell* p)
+{
+  print(p);
+  std::cout << std::endl;
 }

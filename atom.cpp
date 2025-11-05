@@ -26,6 +26,7 @@ Atom* a_eq;
 Atom* a_lambda;
 
 static Atom* find_atom(const char* p, int len);
+static Atom* implied_next(Atom* p);
 
 void init_atoms()
 {
@@ -70,11 +71,18 @@ Atom* atom(const char* p, int len)
 
   atm->type = ATOM;
   atm->next = chain;
-  chain = atm;
-
   atm->n_char = len;
   std::memcpy(atm->string, p, len);
 
+  // Sanity check
+  // if (chain != NULL) {
+  //   Atom* imp = implied_next(chain);
+  //   if (atm != imp) {
+  //     fatal("atom: alloc failure?");
+  //   }
+  // }
+
+  chain = atm;
   return atm;
 }
 
@@ -91,6 +99,14 @@ static Atom* find_atom(const char* p, int len)
   return q;
 }
 
+static Atom* implied_next(Atom* p)
+{
+  int string_alloc = ((p->n_char + WORD_SIZE - 1) / WORD_SIZE) * WORD_SIZE;
+  int n_bytes = sizeof(Atom) + string_alloc;
+
+  return (Atom*) ((char*) p + n_bytes);
+}
+
 bool is_atom(Cell* p)
 {
   return (p->type == ATOM);
@@ -99,4 +115,15 @@ bool is_atom(Cell* p)
 void print(Atom* p)
 {
   std::cout.write(p->string, p->n_char);
+}
+
+void audit_atoms()
+{
+  Atom* p = chain;
+  while (p != NULL) {
+    if (p->type != ATOM) {
+      fatal("audit_atoms: bad type");
+    }
+    p = p->next;
+  }
 }

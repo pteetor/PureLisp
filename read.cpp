@@ -168,9 +168,10 @@ static bool fill_buffer()
   buffer[0] = '\0';
   bufp = buffer;
 
-  while (!feof(stdin)) {
+  while (!std::cin.eof()) {
     std::cout << (lineCount == 0 ? PROMPT : CONTINUATION_PROMPT);
-    if (fgets(buffer, BUFFER_SIZE, stdin) == NULL) {
+    std::cin.getline(buffer, BUFFER_SIZE);
+    if (std::cin.fail()) {
       break;
     }
     ++lineCount;

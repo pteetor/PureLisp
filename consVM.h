@@ -51,12 +51,14 @@ extern Cell* car(Cell* p);
 extern Cell* cdr(Cell* p);
 extern void print(Cons* p);
 extern bool is_cons(Cell* p);
+extern void audit_cons();
 
 extern void init_atoms();
 extern Atom* atom(const char* p);
 extern Atom* atom(const char* p, int len);
 extern void print(Atom* p);
 extern bool is_atom(Cell* p);
+extern void audit_atoms();
 
 extern void init_stack();
 extern Cell* top();
@@ -64,13 +66,17 @@ extern void push(Cell*);
 extern Cell* pop();
 
 extern void print(Cell* p);
+extern void println(Cell* p);
 
 extern Cell* build_globals();
 extern Cell* eval(Cell* e, Cell* a);
 
 extern bool is_true(Cell*);
 extern Cell* fatal(const char* msg, Cell* cell = NULL);
-extern void trace(const char* tag, Cell* cell = NULL);
+extern void init_tracing();
+extern void trace(const char* tag,
+                  Cell* cell = NULL, Cell* cell2 = NULL);
+extern void validate_cell_ptr(Cell* p);
 
 //
 // Sexpr reader

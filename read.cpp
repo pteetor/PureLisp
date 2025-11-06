@@ -38,6 +38,12 @@ static Token scan_symbol();
 static char* find_token_start();
 static bool fill_buffer();
 
+static void init_reader()
+{
+  buffer[0] = '\0';
+  bufp = &buffer[0];
+  lineCount = 0;
+}
 
 // Here, 'token' is at the token before the sexpr.
 // Leave 'token' at the last token of the sexpr.
@@ -56,11 +62,9 @@ Cell* read(bool top_level)
 }
 
 // Here, 'token' is at the first token of the sexpr.
-// Leave 'token' at the last toke of the sexpr.
+// Leave 'token' at the last token of the sexpr.
 static Cell* parse_sexpr()
 {
-  Cell* p = NULL;
-
   switch (token)
   {
   case LPAREN:
@@ -78,13 +82,6 @@ static Cell* parse_sexpr()
 
   // Unreachable!
   return NULL;
-}
-
-static void init_reader()
-{
-  buffer[0] = '\0';
-  bufp = &buffer[0];
-  lineCount = 0;
 }
 
 static Cell* read_list()

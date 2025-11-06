@@ -14,7 +14,7 @@ void init_cons()
   free_cons = 0;
 }
 
-Cons* cons(Cell* car, Cell* cdr)
+void cons(Cell* car, Cell* cdr)
 {
   if (free_cons == N_CONS)
   {
@@ -29,7 +29,7 @@ Cons* cons(Cell* car, Cell* cdr)
   p->type = CONS;
   p->car = car;
   p->cdr = cdr;
-  return p;
+  push(p);
 }
 
 bool is_cons(Cell* p)

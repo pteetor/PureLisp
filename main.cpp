@@ -24,6 +24,7 @@ int main(int argc, char** argv)
   init_tracing();
   init_atoms();
   init_cons();
+  init_stack();
   Cell* globals = build_globals();
 
   Cell* p = read(true);

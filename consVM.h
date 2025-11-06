@@ -46,7 +46,7 @@ extern bool tracing;
 //
 
 extern void init_cons();
-extern Cons* cons(Cell* car, Cell* cdr);
+extern void cons(Cell* car, Cell* cdr);
 extern Cell* car(Cell* p);
 extern Cell* cdr(Cell* p);
 extern void print(Cons* p);
@@ -64,12 +64,16 @@ extern void init_stack();
 extern Cell* top();
 extern void push(Cell*);
 extern Cell* pop();
+extern Cell* down(int n);
+extern void drop(int n);
+extern void collapse(int n);
 
 extern void print(Cell* p);
 extern void println(Cell* p);
 
-extern Cell* build_globals();
-extern Cell* eval(Cell* e, Cell* a);
+extern void build_globals();
+extern void eval();
+extern void eval(Cell* a, Cell* e);
 
 extern bool is_true(Cell*);
 extern Cell* fatal(const char* msg, Cell* cell = NULL);

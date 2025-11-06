@@ -4,6 +4,7 @@
 // NOTE: This stacks grows *downward*, not upward.
 //
 
+#include "doctest.h"
 #include "consVM.h"
 
 const int STACK_SIZE = 1000;
@@ -42,3 +43,69 @@ Cell* pop()
   return *sp++;
 }
 
+Cell* down(int n)
+{
+  sp[n];
+}
+
+void drop(int n)
+{
+  sp += n;
+}
+
+void collapse(int n)
+{
+  Cell* p = pop();
+  drop(n);
+  push(p);
+}
+
+// -------------------------------------
+
+//
+// Unit tests
+//
+
+TEST_CASE("down() works") {
+  Cell* x = atom("x");
+  Cell* y = atom("y");
+  Cell* z = atom("z");
+
+  push(x);
+  push(y);
+  push(z);
+
+  REQUIRE(down(0) == z);
+  REQUIRE(down(1) == y);
+  REQUIRE(down(2) == x);
+}
+
+TEST_CASE("drop() works") {
+  Cell* x = atom("x");
+  Cell* y = atom("y");
+  Cell* z = atom("z");
+
+  push(x);
+  push(y);
+  push(z);
+
+  drop(2);
+  REQUIRE(top() == x);
+}
+
+TEST_CASE("collapse() works") {
+  Cell* w = atom("w");
+  Cell* x = atom("x");
+  Cell* y = atom("y");
+  Cell* z = atom("z");
+
+  push(w);
+  push(x);
+  push(y);
+  push(z);
+
+  REQUIRE(top() == z);
+  colapse(2);
+  REQUIRE(top() == z);
+  REQUIRE(down(1) == w);
+}

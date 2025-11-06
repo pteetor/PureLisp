@@ -31,8 +31,8 @@ static char* bufp;
 
 // Local functions
 static void init_reader();
-static Cell* parse_sexpr();
-static Cell* read_list();
+static bool parse_sexpr();
+static bool read_list();
 static Token next_token();
 static Token scan_symbol();
 static char* find_token_start();
@@ -47,7 +47,7 @@ static void init_reader()
 
 // Here, 'token' is at the token before the sexpr.
 // Leave 'token' at the last token of the sexpr.
-Cell* read(bool top_level)
+bool read(bool top_level)
 {
   if (top_level) {
     init_reader();
@@ -55,7 +55,7 @@ Cell* read(bool top_level)
 
   next_token();
   if (token == END_OF_FILE) {
-    return NULL;
+    return false;
   } else {
     return parse_sexpr();
   }
@@ -63,7 +63,7 @@ Cell* read(bool top_level)
 
 // Here, 'token' is at the first token of the sexpr.
 // Leave 'token' at the last token of the sexpr.
-static Cell* parse_sexpr()
+static bool parse_sexpr()
 {
   switch (token)
   {
@@ -72,35 +72,57 @@ static Cell* parse_sexpr()
   case RPAREN:
     fatal("Extraneous right paren");   // BETTER: Throw error
   case SYMBOL:
-    return atom(token_text);
+    push(atom(token_text));
+    return true;
   case END_OF_FILE:
     fatal("read: Premature end of file");
-    return NULL;
+    return false;
   default:
     fatal("read: unhandled token type");
   }
 
   // Unreachable!
-  return NULL;
+  return false;
 }
 
-static Cell* read_list()
+static bool read_list()
 {
   next_token();
   if (token == RPAREN) {
-    return (Cell*) nil;
+    push(nil);
+    return true;
   }
 
-  Cons* head = cons(parse_sexpr(), nil);
-  Cons* tail = head;
+  int nElem = 0;
+
+  parse_sexpr();
+  nElem++;
 
   while (next_token() != RPAREN) {
-    Cons* new_tail = cons(parse_sexpr(), nil);
-    tail->cdr = (Cell *) new_tail;
-    tail = new_tail;
+    parse_sexpr();
+    nElem++;
   }
 
-  return (Cell*) head;
+  push(nil);
+  while (nElem > 0) {
+    cons();
+    nElem--;
+  }
+
+  return true;
+
+  // ---------------
+
+  // Cons* head = cons(parse_sexpr(), nil);
+  // Cons* tail = head;
+  //
+  // while (next_token() != RPAREN) {
+  //   Cons* new_tail = cons(parse_sexpr(), nil);
+  //   tail->cdr = (Cell *) new_tail;
+  //   tail = new_tail;
+  // }
+  //
+  // return (Cell*) head;
 }
 
 static Token next_token()

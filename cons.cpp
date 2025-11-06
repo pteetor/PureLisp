@@ -16,20 +16,27 @@ void init_cons()
 
 void cons(Cell* car, Cell* cdr)
 {
+  push(car);
+  push(cdr);
+  cons();
+}
+
+void cons() {
   if (free_cons == N_CONS)
   {
     fatal("Heap space exhausted");
   }
 
   // Sanity checks
-  validate_cell_ptr(car);
-  validate_cell_ptr(cdr);
+  validate_cell_ptr(down(1));   // car
+  validate_cell_ptr(down(0));   // cdr
 
   Cons* p = &heap[free_cons++];
   p->type = CONS;
-  p->car = car;
-  p->cdr = cdr;
+  p->cdr = pop();
+  p->car = pop();
   push(p);
+  return;
 }
 
 bool is_cons(Cell* p)

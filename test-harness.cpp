@@ -6,13 +6,16 @@
 TEST_CASE("000 - initialization") {
     init_atoms();
     init_cons();
-    Cell* globals = build_globals();
+    init_stack();
+    build_globals();
 }
 
 TEST_CASE("testing car()") {
-    CHECK(car(cons(nil, a_t)) == nil);
+  cons(nil, a_t);
+  REQUIRE(car(top()) == nil);
 }
 
 TEST_CASE("testing cdr()") {
-    CHECK(cdr(cons(nil, a_t)) == a_t);
+  cons(nil, a_t);
+  REQUIRE(cdr(top()) == a_t);
 }

@@ -39,6 +39,9 @@ extern Atom *a_t, *a_quote, *a_cond, *a_atom,
             *a_car, *a_cdr, *a_cons, *a_eq,
             *a_lambda;
 
+// Pre-defined functions are stored in global_env
+extern Cell* global_env;
+
 extern bool tracing;
 
 //
@@ -46,6 +49,7 @@ extern bool tracing;
 //
 
 extern void init_cons();
+extern void cons();
 extern void cons(Cell* car, Cell* cdr);
 extern Cell* car(Cell* p);
 extern Cell* cdr(Cell* p);
@@ -82,7 +86,4 @@ extern void trace(const char* tag,
                   Cell* cell = NULL, Cell* cell2 = NULL);
 extern void validate_cell_ptr(Cell* p);
 
-//
-// Sexpr reader
-//
-extern Cell* read(bool top_level = false);
+extern bool read(bool top_level = false);

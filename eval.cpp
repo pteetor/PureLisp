@@ -16,10 +16,17 @@ static void apply();
 
 static void audit_env(Cell* a);
 
-void unpack(Cell &*arg1, Cell &*arg2)
+static void unpack(Cell*& arg1, Cell*& arg2)
 {
   arg1 = down(1);
   arg2 = down(0);
+}
+
+static void unpack(Cell*& arg1, Cell*& arg2, Cell*& arg3)
+{
+  arg1 = down(2);
+  arg2 = down(1);
+  arg3 = down(0);
 }
 
 void eval(Cell* e, Cell* a)
@@ -72,7 +79,8 @@ static void assoc(Cell* a, Cell* e)
 
 static void assoc()
 {
-  unpack(Cell* a, Cell* e);
+  Cell* a; Cell* e;
+  unpack(a, e);
 
   trace("assoc", a);
 
@@ -144,11 +152,11 @@ static void pairlis(Cell* x, Cell* y, Cell* e)
   }
   push(e);
 
-  if (x == nil) {
-    return fatal("pairlis: Too many arguments");
+  if (x != nil) {
+    fatal("pairlis: Missing arguments");
   }
-  if (y == nil) {
-    return fatal("pairlis: Missing arguments");
+  if (y != nil) {
+    fatal("pairlis: Too many arguments");
   }
 
   while (nPairs-- > 0) {
@@ -214,33 +222,42 @@ static void evlis() {
   collapse(2);
 }
 
+static void apply(Cell* fn, Cell* x, Cell* a)
+{
+  push(fn);
+  push(x);
+  push(a);
+  apply();
+}
+
 static void apply()
 {
-  Cell* fn, Cell* x, Cell* a;
+  Cell* fn; Cell* x; Cell* a;
   unpack(fn, x, a);
 
   trace("apply", fn, (is_atom(x) ? x : car(x)));
 
   if (is_atom(fn)) {
     if (fn == a_car) {
-      return car(car(x));
+      push(car(car(x)));
     } else if (fn == a_cdr) {
-      return cdr(car(x));
+      push(cdr(car(x)));
     } else if (fn == a_atom) {
-      return (is_atom(car(x)) ? a_t : nil);
+      push(is_atom(car(x)) ? a_t : nil);
     } else if (fn == a_cons) {
-      return cons(car(x), car(cdr(x)));
+      cons(car(x), car(cdr(x)));
     } else if (fn == a_eq) {
-      return (car(x) == car(cdr(x)) ? a_t : nil);
+      push(car(x) == car(cdr(x)) ? a_t : nil);
     } else {
-      return apply(eval(fn,a), x, a);
+      eval(fn, a);
+      apply(pop(), x, a);
     }
   } else if (car(fn) == a_lambda) {
     push(car(cdr(cdr(fn))));
     pairlis(car(cdr(fn)), x, a);
     eval();
   } else {
-    return fatal("apply: Not a function");
+    fatal("apply: Not a function");
   }
 
   collapse(3);
@@ -272,7 +289,9 @@ static void audit_env(Cell* a)
 
 static void make_assoc(Cell* name, Cell* value)
 {
-  cons(cons(name, value), nil);
+  cons(name, value);
+  push(nil);
+  cons();
 }
 
 TEST_CASE("assoc() works") {
@@ -283,7 +302,7 @@ TEST_CASE("assoc() works") {
   Cell* env = pop();
 
   assoc(name, env);
-  CHECK(top() == value);
+  REQUIRE(top() == value);
 }
 
 TEST_CASE("pairlis() works for simple environment") {
@@ -310,7 +329,7 @@ TEST_CASE("eval can evaluate an atom") {
   make_assoc(name, value);
 
   eval();
-  CHECK(top() == value);
+  REQUIRE(top() == value);
 }
 
 // ((lambda () (quote foo))) should yield 'foo'

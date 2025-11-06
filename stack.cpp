@@ -45,7 +45,7 @@ Cell* pop()
 
 Cell* down(int n)
 {
-  sp[n];
+  return sp[n];
 }
 
 void drop(int n)
@@ -105,7 +105,7 @@ TEST_CASE("collapse() works") {
   push(z);
 
   REQUIRE(top() == z);
-  colapse(2);
+  collapse(2);
   REQUIRE(top() == z);
   REQUIRE(down(1) == w);
 }

@@ -7,11 +7,33 @@
 const int N_CONS = 1000 * 1000;
 
 static Cons heap[N_CONS];
-static int free_cons;
+static Cons* free_list;
 
 void init_cons()
 {
-  free_cons = 0;
+  free_list = &heap[0];
+
+  for (int i = 0; i < N_CONS-1; ++i)
+  {
+    heap[i].type = CONS;
+    heap[i].car = &heap[i+1];
+    heap[i].cdr = NULL;
+  }
+
+  heap[N_CONS-1].type = CONS;
+  heap[N_CONS-1].car = NULL;
+  heap[N_CONS-1].cdr = NULL;
+}
+
+Cons* alloc_cons()
+{
+  if (free_list == NULL) {
+    fatal("Heap exhausted");
+  }
+
+  Cons* p = free_list;
+  free_list = (Cons*) free_list->car;
+  return p;
 }
 
 void cons(Cell* car, Cell* cdr)
@@ -22,16 +44,11 @@ void cons(Cell* car, Cell* cdr)
 }
 
 void cons() {
-  if (free_cons == N_CONS)
-  {
-    fatal("Heap space exhausted");
-  }
-
   // Sanity checks
   validate_cell_ptr(down(1));   // car
   validate_cell_ptr(down(0));   // cdr
 
-  Cons* p = &heap[free_cons++];
+  Cons* p = alloc_cons();
   p->type = CONS;
   p->cdr = pop();
   p->car = pop();
@@ -98,20 +115,14 @@ void print(Cons* p)
 
 void audit_cons()
 {
-  int i = 0;
-  while (i < free_cons)
+  for (int i = 0; i < N_CONS; ++i)
   {
     Cell* p = &heap[i];
     if (p->type != CONS)
     {
       fatal("audit_cons: Bad type");
     }
-    if (car(p)->type != ATOM && car(p)->type != CONS) {
-      fatal("audit_cons: Bad car ptr");
-    }
-    if (cdr(p)->type != ATOM && cdr(p)->type != CONS) {
-      fatal("audit_cons: Bad cdr ptr");
-    }
-    i++;
   }
 }
+
+// -------------------------------------

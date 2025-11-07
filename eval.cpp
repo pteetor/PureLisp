@@ -12,6 +12,7 @@ static void evcon();
 static void pairlis(Cell* v, Cell* a, Cell* e);
 static void evlis(Cell* a, Cell* b);
 static void evlis();
+static void apply(Cell* fn, Cell* x, Cell* a);
 static void apply();
 
 static void audit_env(Cell* a);
@@ -42,7 +43,7 @@ void eval()   // eval(e, a)
   Cell* a;
   unpack(e, a);
 
-  trace("eval", e);
+  trace("eval", e, a);
 
   if (is_atom(e)) {
     assoc();
@@ -68,6 +69,47 @@ void eval()   // eval(e, a)
   }
 
   collapse(2);
+}
+
+static void apply(Cell* fn, Cell* x, Cell* a)
+{
+  push(fn);
+  push(x);
+  push(a);
+  apply();
+}
+
+static void apply()
+{
+  Cell* fn; Cell* x; Cell* a;
+  unpack(fn, x, a);
+
+  trace("apply", fn, (is_atom(x) ? x : car(x)));
+
+  if (is_atom(fn)) {
+    if (fn == a_car) {
+      push(car(car(x)));
+    } else if (fn == a_cdr) {
+      push(cdr(car(x)));
+    } else if (fn == a_atom) {
+      push(is_atom(car(x)) ? a_t : nil);
+    } else if (fn == a_cons) {
+      cons(car(x), car(cdr(x)));
+    } else if (fn == a_eq) {
+      push(car(x) == car(cdr(x)) ? a_t : nil);
+    } else {
+      eval(fn, a);
+      apply(pop(), x, a);
+    }
+  } else if (car(fn) == a_lambda) {
+    push(car(cdr(cdr(fn))));
+    pairlis(car(cdr(fn)), x, a);
+    eval();
+  } else {
+    fatal("apply: Not a function");
+  }
+
+  collapse(3);
 }
 
 static void assoc(Cell* a, Cell* e)
@@ -138,19 +180,23 @@ static void evcon()
 // a.k.a "zip"
 static void pairlis(Cell* x, Cell* y, Cell* e)
 {
+  push(x);
+  push(y);
+  push(e);
+
   trace("pairlis",
         (is_cons(x) ? car(x) : x),
         (is_cons(y) ? car(y) : x) );
 
   int nPairs = 0;
 
+  // Build a stack of <name,value> pairs
   while (x != nil && y != nil) {
     cons(car(x), car(y));
     nPairs++;
     x = cdr(x);
     y = cdr(y);
   }
-  push(e);
 
   if (x != nil) {
     fatal("pairlis: Missing arguments");
@@ -159,6 +205,8 @@ static void pairlis(Cell* x, Cell* y, Cell* e)
     fatal("pairlis: Too many arguments");
   }
 
+  // Unwind the stack into a list, prepended onto 'e'
+  push(e);
   while (nPairs-- > 0) {
     cons();
   }
@@ -220,47 +268,6 @@ static void evlis() {
   }
 
   collapse(2);
-}
-
-static void apply(Cell* fn, Cell* x, Cell* a)
-{
-  push(fn);
-  push(x);
-  push(a);
-  apply();
-}
-
-static void apply()
-{
-  Cell* fn; Cell* x; Cell* a;
-  unpack(fn, x, a);
-
-  trace("apply", fn, (is_atom(x) ? x : car(x)));
-
-  if (is_atom(fn)) {
-    if (fn == a_car) {
-      push(car(car(x)));
-    } else if (fn == a_cdr) {
-      push(cdr(car(x)));
-    } else if (fn == a_atom) {
-      push(is_atom(car(x)) ? a_t : nil);
-    } else if (fn == a_cons) {
-      cons(car(x), car(cdr(x)));
-    } else if (fn == a_eq) {
-      push(car(x) == car(cdr(x)) ? a_t : nil);
-    } else {
-      eval(fn, a);
-      apply(pop(), x, a);
-    }
-  } else if (car(fn) == a_lambda) {
-    push(car(cdr(cdr(fn))));
-    pairlis(car(cdr(fn)), x, a);
-    eval();
-  } else {
-    fatal("apply: Not a function");
-  }
-
-  collapse(3);
 }
 
 // ------------------------------------

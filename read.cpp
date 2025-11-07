@@ -98,6 +98,8 @@ static bool read_list()
   parse_sexpr();
   nElem++;
 
+  // TODO: If next token = '.', this is a dotted pair
+
   while (next_token() != RPAREN) {
     parse_sexpr();
     nElem++;

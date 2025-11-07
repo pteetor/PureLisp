@@ -49,20 +49,12 @@ void init_tracing()
 void trace(const char* tag, Cell* cell, Cell* cell2)
 {
   if (tracing) {
-    std::cout << "[trace] " << tag;
+    std::cout << "[trace] " << tag << std::endl;
     if (cell != NULL) {
-      std::cout << " [";
-      if (is_atom(cell)) {
-        print(cell);
-      }
-      std::cout << "]";
+      std::cout << "   arg1: "; print(cell); std::cout << std::endl;
     }
     if (cell2 != NULL) {
-      std::cout << " [";
-      if (is_atom(cell2)) {
-        print(cell2);
-      }
-      std::cout << "]";
+      std::cout << "   arg2: "; print(cell2); std::cout << std::endl;
     }
     std::cout << std::endl;
   }

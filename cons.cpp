@@ -16,19 +16,22 @@ void init_cons()
   for (int i = 0; i < N_CONS-1; ++i)
   {
     heap[i].type = CONS;
+    heap[i].flags = 0;
     heap[i].car = &heap[i+1];
     heap[i].cdr = NULL;
   }
 
-  heap[N_CONS-1].type = CONS;
-  heap[N_CONS-1].car = NULL;
-  heap[N_CONS-1].cdr = NULL;
+  Cons* p = &heap[N_CONS-1];
+  p->type = CONS;
+  p->flags = 0;
+  p->car = NULL;
+  p->cdr = NULL;
 }
 
 Cons* alloc_cons()
 {
   if (free_list == NULL) {
-    fatal("Heap exhausted");
+    gc();
   }
 
   Cons* p = free_list;
@@ -107,7 +110,7 @@ void print(Cons* p)
       // DEBUG
       std::cout << "Cell type: " << q->type << std::endl;
 
-      fatal("print: invalid cell type");
+    fatal("print: invalid cell type");
     }
   }
   std::cout << ")";
@@ -126,3 +129,67 @@ void audit_cons()
 }
 
 // -------------------------------------
+
+static void sweep();
+
+static int nMarked;
+static int nRecovered;
+
+void gc()
+{
+  std::cout << "gc: Starting" << std::endl;
+
+  nMarked = 0;
+  nRecovered = 0;
+
+  mark(global_env);
+  mark_stack();
+  std::cout << "gc: Marked " << nMarked << " cons cells" << std::endl;
+
+  sweep();
+  std::cout << "gc: Recovered " << nRecovered << " cons cells" << std::endl;
+
+  if (free_list == NULL)
+  {
+    fatal("gc: Cons heap exhausted");
+  }
+
+  std::cout << "gc: Done" << std::endl;
+}
+
+void mark(Cell* p)
+{
+  // Sanity check
+  if (p == NULL) {
+    fatal("gc: null pointer to mark");
+  }
+
+  if (is_cons(p)) {
+    if ((p->flags & MARK_FLAG) == 0) {
+      p->flags |= MARK_FLAG;
+      ++nMarked;
+
+      Cons* q = (Cons*) p;
+      mark(q->car);
+      mark(q->cdr);
+    }
+  }
+}
+
+static void sweep()
+{
+  free_list = NULL;
+  nRecovered = 0;
+
+  for (int i = 0; i < N_CONS; ++i)
+  {
+    Cons* p = &heap[i];
+    if ((p->flags & MARK_FLAG) == 0) {
+      p->car = free_list;
+      free_list = p;
+      ++nRecovered;
+    } else {
+      p->flags &= ~MARK_FLAG;
+    }
+  }
+}

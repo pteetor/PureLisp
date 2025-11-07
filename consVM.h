@@ -10,12 +10,15 @@
 #include <stdio.h>
 #include <stdint.h>
 
-const uint32_t ATOM = 1;
-const uint32_t CONS = 2;
+const uint16_t ATOM = 1;
+const uint16_t CONS = 2;
+
+const uint16_t MARK_FLAG = 1 << 0;
 
 struct Cell
 {
-  uint32_t type;
+  uint16_t type;
+  uint16_t flags;
 };
 
 struct Cons: public Cell
@@ -56,6 +59,10 @@ extern Cell* cdr(Cell* p);
 extern void print(Cons* p);
 extern bool is_cons(Cell* p);
 extern void audit_cons();
+
+extern void gc();
+extern void mark(Cell* p);
+extern void mark_stack();
 
 extern void init_atoms();
 extern Atom* atom(const char* p);

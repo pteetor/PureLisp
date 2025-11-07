@@ -60,6 +60,16 @@ void collapse(int n)
   push(p);
 }
 
+void mark_stack()
+{
+  Cell** p = sp;
+  while (p < stack_base)
+  {
+    mark(*p);
+    p++;
+  }
+}
+
 // -------------------------------------
 
 //

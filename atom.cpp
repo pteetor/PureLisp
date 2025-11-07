@@ -70,6 +70,7 @@ Atom* atom(const char* p, int len)
   }
 
   atm->type = ATOM;
+  atm->flags = 0;
   atm->next = chain;
   atm->n_char = len;
   std::memcpy(atm->string, p, len);

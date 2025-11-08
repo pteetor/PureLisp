@@ -58,8 +58,8 @@ Atom* atom(const char* p, int len)
   }
 
   // Round 'len' to next word boundary
-  int string_alloc = ((len + WORD_SIZE - 1) / WORD_SIZE) * WORD_SIZE;
-  int n_bytes = sizeof(Atom) + string_alloc;
+  int string_size = ((len + WORD_SIZE - 1) / WORD_SIZE) * WORD_SIZE;
+  int n_bytes = sizeof(Atom) + string_size;
 
   atm = (Atom*) &space[free_space];
   free_space = free_space + n_bytes;
@@ -69,7 +69,7 @@ Atom* atom(const char* p, int len)
     throw LispError("atom space exhausted", true);
   }
 
-  atm->type = ATOM;
+  atm->type = ATOM_TAG;
   atm->flags = 0;
   atm->next = chain;
   atm->n_char = len;
@@ -102,15 +102,15 @@ static Atom* find_atom(const char* p, int len)
 
 static Atom* implied_next(Atom* p)
 {
-  int string_alloc = ((p->n_char + WORD_SIZE - 1) / WORD_SIZE) * WORD_SIZE;
-  int n_bytes = sizeof(Atom) + string_alloc;
+  int string_size = ((p->n_char + WORD_SIZE - 1) / WORD_SIZE) * WORD_SIZE;
+  int n_bytes = sizeof(Atom) + string_size;
 
   return (Atom*) ((char*) p + n_bytes);
 }
 
 bool is_atom(Cell* p)
 {
-  return (p->type == ATOM);
+  return (p->type == ATOM_TAG);
 }
 
 void print(Atom* p)
@@ -122,8 +122,8 @@ void audit_atoms()
 {
   Atom* p = chain;
   while (p != NULL) {
-    if (p->type != ATOM) {
-      throw LispError("audit_atoms: bad type", true);
+    if (p->type != ATOM_TAG) {
+      fatal("audit_atoms: bad type");
     }
     p = p->next;
   }

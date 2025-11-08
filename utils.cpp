@@ -51,11 +51,12 @@ void validate_cell_ptr(Cell* p)
   if (p == NULL) {
     throw LispError("validate_cell_ptr: NULL pointer", true);
   }
-  if (p->type != ATOM && p->type != CONS)
+
+  switch (p->type)
   {
-    throw LispError("validate_cell_ptr: Bad type", true);
-  }
-  if (p->type == CONS) {
+  case ATOM_TAG:
+    break;
+  case CONS_TAG:
     if (car(p) == NULL)
     {
       throw LispError("validate_cell_ptr: NULL car ptr", true);
@@ -64,13 +65,16 @@ void validate_cell_ptr(Cell* p)
     {
       throw LispError("validate_cell_ptr: NULL cdr ptr", true);
     }
-    if (car(p)->type != ATOM && car(p)->type != CONS)
+    if (car(p)->type != ATOM_TAG && car(p)->type != CONS_TAG)
     {
       throw LispError("validate_cell_ptr: Bad car ptr", true);
     }
-    if (cdr(p)->type != ATOM && cdr(p)->type != CONS)
+    if (cdr(p)->type != ATOM_TAG && cdr(p)->type != CONS_TAG)
     {
       throw LispError("validate_cell_ptr: Bad cdr ptr", true);
     }
+    break;
+  default:
+    fatal("validate_cell_ptr: Invalid cell tag");
   }
 }

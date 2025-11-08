@@ -4,7 +4,7 @@
 
 #include "consVM.h"
 
-const int N_CONS = 1000 * 1000;
+const int N_CONS = 200;
 
 static Cons* alloc_cons();
 
@@ -21,7 +21,7 @@ void cons() {
   validate_cell_ptr(down(0));   // cdr
 
   Cons* p = alloc_cons();
-  p->type = CONS;
+  p->type = CONS_TAG;
   p->cdr = pop();
   p->car = pop();
   push(p);
@@ -30,12 +30,12 @@ void cons() {
 
 bool is_cons(Cell* p)
 {
-  return (p->type == CONS);
+  return (p->type == CONS_TAG);
 }
 
 Cell* car(Cell* p)
 {
-  if (p->type != CONS)
+  if (p->type != CONS_TAG)
   {
     throw LispError("car: not a cons", true);
   }
@@ -45,7 +45,7 @@ Cell* car(Cell* p)
 
 Cell* cdr(Cell* p)
 {
-  if (p->type != CONS)
+  if (p->type != CONS_TAG)
   {
     throw LispError("cdr: not a cons", true);
   }
@@ -65,12 +65,12 @@ void print(Cons* p)
     std::cout << " ";
     switch (q->type)
     {
-    case ATOM:
+    case ATOM_TAG:
       std::cout << ". ";
       print((Atom*) q);
       std::cout << ")";
       return;
-    case CONS:
+    case CONS_TAG:
       r = (Cons*) q;
       print(r->car);
       q = r->cdr;
@@ -91,10 +91,7 @@ void print(Cons* p)
 // Heap management and garbage collection
 //
 
-static void sweep();
-
-static int nMarked;
-static int nRecovered;
+static int sweep();
 
 static Cons heap[N_CONS];
 static Cons* free_list;
@@ -107,14 +104,14 @@ void init_cons()
   for (int i = 0; i < N_CONS-1; ++i)
   {
     p = &heap[i];
-    p->type = CONS;
+    p->type = CONS_TAG;
     p->flags = 0;
     p->car = &heap[i+1];
     p->cdr = NULL;
   }
 
   p = &heap[N_CONS-1];
-  p->type = CONS;
+  p->type = CONS_TAG;
   p->flags = 0;
   p->car = NULL;
   p->cdr = NULL;
@@ -123,7 +120,11 @@ void init_cons()
 static Cons* alloc_cons()
 {
   if (free_list == NULL) {
-    gc();
+    GCStatus status = gc();
+    std::cout <<
+      "gc: Heap size " << status.heap_size <<
+        ", marked " << status.n_marked <<
+          ", recovered " << status.n_recovered << std::endl;
   }
 
   Cons* p = free_list;
@@ -131,19 +132,13 @@ static Cons* alloc_cons()
   return p;
 }
 
-void gc()
+GCStatus gc()
 {
-  std::cout << "gc: Starting" << std::endl;
+  std::cout << std::endl << "gc: Starting" << std::endl;
 
-  nMarked = 0;
-  nRecovered = 0;
-
-  mark(global_env);
-  mark_stack();
-  std::cout << "gc: Marked " << nMarked << " cons cells" << std::endl;
-
-  sweep();
-  std::cout << "gc: Recovered " << nRecovered << " cons cells" << std::endl;
+  int nMarked = mark(global_env);
+  nMarked += mark_stack();
+  int nRecovered = sweep();
 
   if (free_list == NULL)
   {
@@ -151,14 +146,18 @@ void gc()
   }
 
   std::cout << "gc: Done" << std::endl;
+
+  return GCStatus(N_CONS, nMarked, nRecovered);
 }
 
-void mark(Cell* p)
+int mark(Cell* p)
 {
   // Sanity check
   if (p == NULL) {
     throw LispError("gc: null pointer to mark", true);
   }
+
+  int nMarked = 0;
 
   if (is_cons(p)) {
     if ((p->flags & MARK_FLAG) == 0) {
@@ -166,16 +165,18 @@ void mark(Cell* p)
       ++nMarked;
 
       Cons* q = (Cons*) p;
-      mark(q->car);
-      mark(q->cdr);
+      nMarked += mark(q->car);
+      nMarked += mark(q->cdr);
     }
   }
+
+  return nMarked;
 }
 
-static void sweep()
+static int sweep()
 {
   free_list = NULL;
-  nRecovered = 0;
+  int nRecovered = 0;
 
   for (int i = 0; i < N_CONS; ++i)
   {
@@ -188,6 +189,8 @@ static void sweep()
       p->flags &= ~MARK_FLAG;
     }
   }
+
+  return nRecovered;
 }
 
 // -------------------------------------
@@ -197,7 +200,7 @@ void audit_cons()
   for (int i = 0; i < N_CONS; ++i)
   {
     Cell* p = &heap[i];
-    if (p->type != CONS)
+    if (p->type != CONS_TAG)
     {
       throw LispError("audit_cons: Bad type", true);
     }

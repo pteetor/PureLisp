@@ -6,38 +6,7 @@
 
 const int N_CONS = 1000 * 1000;
 
-static Cons heap[N_CONS];
-static Cons* free_list;
-
-void init_cons()
-{
-  free_list = &heap[0];
-
-  for (int i = 0; i < N_CONS-1; ++i)
-  {
-    heap[i].type = CONS;
-    heap[i].flags = 0;
-    heap[i].car = &heap[i+1];
-    heap[i].cdr = NULL;
-  }
-
-  Cons* p = &heap[N_CONS-1];
-  p->type = CONS;
-  p->flags = 0;
-  p->car = NULL;
-  p->cdr = NULL;
-}
-
-Cons* alloc_cons()
-{
-  if (free_list == NULL) {
-    gc();
-  }
-
-  Cons* p = free_list;
-  free_list = (Cons*) free_list->car;
-  return p;
-}
+static Cons* alloc_cons();
 
 void cons(Cell* car, Cell* cdr)
 {
@@ -116,24 +85,51 @@ void print(Cons* p)
   std::cout << ")";
 }
 
-void audit_cons()
-{
-  for (int i = 0; i < N_CONS; ++i)
-  {
-    Cell* p = &heap[i];
-    if (p->type != CONS)
-    {
-      fatal("audit_cons: Bad type");
-    }
-  }
-}
-
 // -------------------------------------
+
+//
+// Heap management and garbage collection
+//
 
 static void sweep();
 
 static int nMarked;
 static int nRecovered;
+
+static Cons heap[N_CONS];
+static Cons* free_list;
+
+void init_cons()
+{
+  free_list = &heap[0];
+
+  Cons* p;
+  for (int i = 0; i < N_CONS-1; ++i)
+  {
+    p = &heap[i];
+    p->type = CONS;
+    p->flags = 0;
+    p->car = &heap[i+1];
+    p->cdr = NULL;
+  }
+
+  p = &heap[N_CONS-1];
+  p->type = CONS;
+  p->flags = 0;
+  p->car = NULL;
+  p->cdr = NULL;
+}
+
+static Cons* alloc_cons()
+{
+  if (free_list == NULL) {
+    gc();
+  }
+
+  Cons* p = free_list;
+  free_list = (Cons*) free_list->car;
+  return p;
+}
 
 void gc()
 {
@@ -190,6 +186,20 @@ static void sweep()
       ++nRecovered;
     } else {
       p->flags &= ~MARK_FLAG;
+    }
+  }
+}
+
+// -------------------------------------
+
+void audit_cons()
+{
+  for (int i = 0; i < N_CONS; ++i)
+  {
+    Cell* p = &heap[i];
+    if (p->type != CONS)
+    {
+      fatal("audit_cons: Bad type");
     }
   }
 }

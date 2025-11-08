@@ -58,8 +58,8 @@ Atom* atom(const char* p, int len)
   }
 
   // Round 'len' to next word boundary
-  int string_alloc = ((len + WORD_SIZE - 1) / WORD_SIZE) * WORD_SIZE;
-  int n_bytes = sizeof(Atom) + string_alloc;
+  int string_size = ((len + WORD_SIZE - 1) / WORD_SIZE) * WORD_SIZE;
+  int n_bytes = sizeof(Atom) + string_size;
 
   atm = (Atom*) &space[free_space];
   free_space = free_space + n_bytes;
@@ -102,8 +102,8 @@ static Atom* find_atom(const char* p, int len)
 
 static Atom* implied_next(Atom* p)
 {
-  int string_alloc = ((p->n_char + WORD_SIZE - 1) / WORD_SIZE) * WORD_SIZE;
-  int n_bytes = sizeof(Atom) + string_alloc;
+  int string_size = ((p->n_char + WORD_SIZE - 1) / WORD_SIZE) * WORD_SIZE;
+  int n_bytes = sizeof(Atom) + string_size;
 
   return (Atom*) ((char*) p + n_bytes);
 }

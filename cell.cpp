@@ -8,10 +8,10 @@ void print(Cell* p)
 {
   switch (p->type)
   {
-  case ATOM:
+  case ATOM_TAG:
     print((Atom*) p);
     break;
-  case CONS:
+  case CONS_TAG:
     print((Cons*) p);
     break;
   default:

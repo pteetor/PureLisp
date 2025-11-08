@@ -21,7 +21,7 @@ void cons() {
   validate_cell_ptr(down(0));   // cdr
 
   Cons* p = alloc_cons();
-  p->type = CONS;
+  p->type = CONS_TAG;
   p->cdr = pop();
   p->car = pop();
   push(p);
@@ -30,12 +30,12 @@ void cons() {
 
 bool is_cons(Cell* p)
 {
-  return (p->type == CONS);
+  return (p->type == CONS_TAG);
 }
 
 Cell* car(Cell* p)
 {
-  if (p->type != CONS)
+  if (p->type != CONS_TAG)
   {
     fatal("car: not a cons");
   }
@@ -45,7 +45,7 @@ Cell* car(Cell* p)
 
 Cell* cdr(Cell* p)
 {
-  if (p->type != CONS)
+  if (p->type != CONS_TAG)
   {
     fatal("cdr: not a cons");
   }
@@ -65,12 +65,12 @@ void print(Cons* p)
     std::cout << " ";
     switch (q->type)
     {
-    case ATOM:
+    case ATOM_TAG:
       std::cout << ". ";
       print((Atom*) q);
       std::cout << ")";
       return;
-    case CONS:
+    case CONS_TAG:
       r = (Cons*) q;
       print(r->car);
       q = r->cdr;
@@ -107,14 +107,14 @@ void init_cons()
   for (int i = 0; i < N_CONS-1; ++i)
   {
     p = &heap[i];
-    p->type = CONS;
+    p->type = CONS_TAG;
     p->flags = 0;
     p->car = &heap[i+1];
     p->cdr = NULL;
   }
 
   p = &heap[N_CONS-1];
-  p->type = CONS;
+  p->type = CONS_TAG;
   p->flags = 0;
   p->car = NULL;
   p->cdr = NULL;
@@ -197,7 +197,7 @@ void audit_cons()
   for (int i = 0; i < N_CONS; ++i)
   {
     Cell* p = &heap[i];
-    if (p->type != CONS)
+    if (p->type != CONS_TAG)
     {
       fatal("audit_cons: Bad type");
     }

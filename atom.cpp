@@ -123,7 +123,7 @@ void audit_atoms()
   Atom* p = chain;
   while (p != NULL) {
     if (p->type != ATOM_TAG) {
-      fatal("audit_atoms: bad type");
+      LispError("audit_atoms: bad type", true);
     }
     p = p->next;
   }

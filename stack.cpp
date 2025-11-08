@@ -45,12 +45,18 @@ Cell* pop()
 
 Cell* down(int n)
 {
+  if (&sp[n] > stack_base) {
+    throw LispError("down: stack underflow");
+  }
   return sp[n];
 }
 
 void drop(int n)
 {
   sp += n;
+  if (sp > stack_base) {
+    throw LispError("drop: stack underflow", true);
+  }
 }
 
 void collapse(int n)

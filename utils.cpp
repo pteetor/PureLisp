@@ -75,6 +75,6 @@ void validate_cell_ptr(Cell* p)
     }
     break;
   default:
-    fatal("validate_cell_ptr: Invalid cell tag");
+    LispError("validate_cell_ptr: Invalid cell tag", true);
   }
 }

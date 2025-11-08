@@ -28,12 +28,14 @@ int main(int argc, char** argv)
   build_globals();
 
   for (;;) {
-    std::cout << "consvm> ";
     try {
       if (read(true)) {
+        std::cout << "s-expr: "; print(top()); std::cout << std::endl;
+        push(global_env);
         eval();
         std::cout << "=> ";
         println(top());
+        drop(1);
       } else {
         break;
       }

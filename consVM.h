@@ -60,9 +60,6 @@ extern void print(Cons* p);
 extern bool is_cons(Cell* p);
 extern void audit_cons();
 
-extern void gc();
-extern void mark(Cell* p);
-extern void mark_stack();
 
 extern void init_atoms();
 extern Atom* atom(const char* p);
@@ -94,3 +91,16 @@ extern void trace(const char* tag,
 extern void validate_cell_ptr(Cell* p);
 
 extern bool read(bool top_level = false);
+
+struct GCStatus {
+  int heap_size;
+  int n_marked;
+  int n_recovered;
+
+  GCStatus(int hs, int nm, int nr) :
+    heap_size(hs), n_marked(nm), n_recovered(nr) {}
+};
+
+extern GCStatus gc();
+extern int mark(Cell* p);
+extern int mark_stack();

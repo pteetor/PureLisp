@@ -65,11 +65,12 @@ void validate_cell_ptr(Cell* p)
   if (p == NULL) {
     fatal("validate_cell_ptr: NULL pointer");
   }
-  if (p->type != ATOM_TAG && p->type != CONS_TAG)
+
+  switch (p->type)
   {
-    fatal("validate_cell_ptr: Bad type");
-  }
-  if (p->type == CONS_TAG) {
+  case ATOM_TAG:
+    break;
+  case CONS_TAG:
     if (car(p) == NULL)
     {
       fatal("validate_cell_ptr: NULL car ptr");
@@ -86,5 +87,8 @@ void validate_cell_ptr(Cell* p)
     {
       fatal("validate_cell_ptr: Bad cdr ptr");
     }
+    break;
+  default:
+    fatal("validate_cell_ptr: Invalid cell tag");
   }
 }

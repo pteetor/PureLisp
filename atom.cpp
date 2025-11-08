@@ -66,7 +66,7 @@ Atom* atom(const char* p, int len)
 
   if (free_space >= SPACE_SIZE)
   {
-    fatal("atom space exhausted");
+    throw LispError("atom space exhausted", true);
   }
 
   atm->type = ATOM_TAG;

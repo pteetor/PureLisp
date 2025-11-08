@@ -70,15 +70,14 @@ static bool parse_sexpr()
   case LPAREN:
     return read_list();
   case RPAREN:
-    fatal("Extraneous right paren");   // BETTER: Throw error
+    throw LispError("Extraneous right paren");
   case SYMBOL:
     push(atom(token_text));
     return true;
   case END_OF_FILE:
-    fatal("read: Premature end of file");
-    return false;
+    throw LispError("read: Premature end of file");
   default:
-    fatal("read: unhandled token type");
+    throw LispError("read: unhandled token type");
   }
 
   // Unreachable!
@@ -149,10 +148,7 @@ static Token next_token()
     return scan_symbol();
   }
 
-  fatal("read: Non-alpha-numeric character");
-
-  // unreachable!
-  return UNDEF_TOKEN;
+  throw LispError("read: Non-alpha-numeric character");
 }
 
 static Token scan_symbol()

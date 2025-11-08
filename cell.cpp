@@ -17,7 +17,7 @@ void print(Cell* p)
   default:
     // DEBUG
     std::cout << "Cell type: " << p->type << std::endl;
-    fatal("print: invalid cell type");
+    throw LispError("print: invalid cell type", true);
   }
 }
 

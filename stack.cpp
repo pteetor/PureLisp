@@ -21,7 +21,7 @@ void init_stack()
 Cell* top()
 {
   if (sp == stack_base) {
-    fatal("top: stack underflow");
+    throw LispError("top: stack underflow", true);
   }
   return *sp;
 }
@@ -30,7 +30,7 @@ void push(Cell* p)
 {
   --sp;
   if (sp == stack) {
-    fatal("push: stack overflow");
+    throw LispError("push: stack overflow", true);
   }
   *sp = p;
 }
@@ -38,7 +38,7 @@ void push(Cell* p)
 Cell* pop()
 {
   if (sp == stack_base) {
-    fatal("pop: stack underflow");
+    throw LispError("pop: stack underflow", true);
   }
   return *sp++;
 }

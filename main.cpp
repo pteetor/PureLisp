@@ -27,11 +27,22 @@ int main(int argc, char** argv)
   init_stack();
   build_globals();
 
-  while (read(true)) {
-    std::cout << "S-expr: "; print(top()); std::cout << std::endl;
-    eval(top(), global_env);
-    std::cout << "Eval: "; print(top()); std::cout << std::endl;
-    drop(2);
+  for (;;) {
+    std::cout << "consvm> ";
+    try {
+      if (read(true)) {
+        eval();
+        std::cout << "=> ";
+        println(top());
+      } else {
+        break;
+      }
+    } catch (const LispError& e) {
+      std::cerr << "Error: " << e.what() << std::endl;
+      if (e.is_fatal) {
+        return 1;
+      }
+    }
   }
 
   // std::cout << "End of sexpr stream" << std::endl;

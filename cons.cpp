@@ -37,7 +37,7 @@ Cell* car(Cell* p)
 {
   if (p->type != CONS_TAG)
   {
-    fatal("car: not a cons");
+    throw LispError("car: not a cons", true);
   }
 
   return ((Cons*) p)->car;
@@ -47,7 +47,7 @@ Cell* cdr(Cell* p)
 {
   if (p->type != CONS_TAG)
   {
-    fatal("cdr: not a cons");
+    throw LispError("cdr: not a cons", true);
   }
 
   return ((Cons*) p)->cdr;
@@ -79,7 +79,7 @@ void print(Cons* p)
       // DEBUG
       std::cout << "Cell type: " << q->type << std::endl;
 
-    fatal("print: invalid cell type");
+    throw LispError("print: invalid cell type", true);
     }
   }
   std::cout << ")";
@@ -142,7 +142,7 @@ GCStatus gc()
 
   if (free_list == NULL)
   {
-    fatal("gc: Cons heap exhausted");
+    throw LispError("gc: Cons heap exhausted", true);
   }
 
   std::cout << "gc: Done" << std::endl;
@@ -154,7 +154,7 @@ int mark(Cell* p)
 {
   // Sanity check
   if (p == NULL) {
-    fatal("gc: null pointer to mark");
+    throw LispError("gc: null pointer to mark", true);
   }
 
   int nMarked = 0;
@@ -202,7 +202,7 @@ void audit_cons()
     Cell* p = &heap[i];
     if (p->type != CONS_TAG)
     {
-      fatal("audit_cons: Bad type");
+      throw LispError("audit_cons: Bad type", true);
     }
   }
 }

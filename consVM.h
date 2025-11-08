@@ -10,8 +10,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
-const uint16_t ATOM = 1;
-const uint16_t CONS = 2;
+const uint16_t ATOM_TAG = 1;
+const uint16_t CONS_TAG = 2;
 
 const uint16_t MARK_FLAG = 1 << 0;
 

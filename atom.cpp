@@ -69,7 +69,7 @@ Atom* atom(const char* p, int len)
     fatal("atom space exhausted");
   }
 
-  atm->type = ATOM;
+  atm->type = ATOM_TAG;
   atm->flags = 0;
   atm->next = chain;
   atm->n_char = len;
@@ -110,7 +110,7 @@ static Atom* implied_next(Atom* p)
 
 bool is_atom(Cell* p)
 {
-  return (p->type == ATOM);
+  return (p->type == ATOM_TAG);
 }
 
 void print(Atom* p)
@@ -122,7 +122,7 @@ void audit_atoms()
 {
   Atom* p = chain;
   while (p != NULL) {
-    if (p->type != ATOM) {
+    if (p->type != ATOM_TAG) {
       fatal("audit_atoms: bad type");
     }
     p = p->next;

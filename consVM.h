@@ -9,6 +9,14 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdexcept>
+
+class LispError : public std::runtime_error {
+public:
+    bool is_fatal;
+    LispError(const std::string& message, bool is_fatal = false)
+        : std::runtime_error(message), is_fatal(is_fatal) {}
+};
 
 const uint16_t ATOM = 1;
 const uint16_t CONS = 2;
@@ -87,7 +95,6 @@ extern void eval();
 extern void eval(Cell* a, Cell* e);
 
 extern bool is_true(Cell*);
-extern Cell* fatal(const char* msg, Cell* cell = NULL);
 extern void init_tracing();
 extern void trace(const char* tag,
                   Cell* cell = NULL, Cell* cell2 = NULL);

@@ -14,20 +14,6 @@ bool tracing = false;
 // Global functions
 //
 
-Cell* fatal(const char* msg, Cell* cell)
-{
-  std::cerr << msg;
-  if (cell != NULL) {
-    if (is_atom(cell)) {
-      std::cout << " [";
-      print(cell);
-      std::cout << "]";
-    }
-  }
-  std::cout << std::endl;
-  std::exit(1);
-  return nil;   // Keep compiler happy
-}
 
 bool is_true(Cell* p)
 {
@@ -63,28 +49,28 @@ void trace(const char* tag, Cell* cell, Cell* cell2)
 void validate_cell_ptr(Cell* p)
 {
   if (p == NULL) {
-    fatal("validate_cell_ptr: NULL pointer");
+    throw LispError("validate_cell_ptr: NULL pointer", true);
   }
   if (p->type != ATOM && p->type != CONS)
   {
-    fatal("validate_cell_ptr: Bad type");
+    throw LispError("validate_cell_ptr: Bad type", true);
   }
   if (p->type == CONS) {
     if (car(p) == NULL)
     {
-      fatal("validate_cell_ptr: NULL car ptr");
+      throw LispError("validate_cell_ptr: NULL car ptr", true);
     }
     if (cdr(p) == NULL)
     {
-      fatal("validate_cell_ptr: NULL cdr ptr");
+      throw LispError("validate_cell_ptr: NULL cdr ptr", true);
     }
     if (car(p)->type != ATOM && car(p)->type != CONS)
     {
-      fatal("validate_cell_ptr: Bad car ptr");
+      throw LispError("validate_cell_ptr: Bad car ptr", true);
     }
     if (cdr(p)->type != ATOM && cdr(p)->type != CONS)
     {
-      fatal("validate_cell_ptr: Bad cdr ptr");
+      throw LispError("validate_cell_ptr: Bad cdr ptr", true);
     }
   }
 }

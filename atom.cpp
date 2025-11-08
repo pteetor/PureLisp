@@ -66,7 +66,7 @@ Atom* atom(const char* p, int len)
 
   if (free_space >= SPACE_SIZE)
   {
-    fatal("atom space exhausted");
+    throw LispError("atom space exhausted", true);
   }
 
   atm->type = ATOM;
@@ -123,7 +123,7 @@ void audit_atoms()
   Atom* p = chain;
   while (p != NULL) {
     if (p->type != ATOM) {
-      fatal("audit_atoms: bad type");
+      throw LispError("audit_atoms: bad type", true);
     }
     p = p->next;
   }

@@ -106,7 +106,7 @@ static void apply()
     pairlis(car(cdr(fn)), x, a);
     eval();
   } else {
-    fatal("apply: Not a function");
+    throw LispError("apply: Not a function");
   }
 
   collapse(3);
@@ -146,7 +146,7 @@ static void assoc()
     e = cdr(e);
   }
 
-  fatal("assoc: Undefined variable", a);
+  throw LispError("assoc: Undefined variable");
 }
 
 static void evcon(Cell* c, Cell* e)
@@ -174,7 +174,7 @@ static void evcon()
     c = cdr(c);
   }
 
-  fatal("evcon: Conditionals exhausted");
+  throw LispError("evcon: Conditionals exhausted");
 }
 
 // a.k.a "zip"
@@ -199,10 +199,10 @@ static void pairlis(Cell* x, Cell* y, Cell* e)
   }
 
   if (x != nil) {
-    fatal("pairlis: Missing arguments");
+    throw LispError("pairlis: Missing arguments");
   }
   if (y != nil) {
-    fatal("pairlis: Too many arguments");
+    throw LispError("pairlis: Too many arguments");
   }
 
   // Unwind the stack into a list, prepended onto 'e'
@@ -278,15 +278,15 @@ static void audit_env(Cell* a)
   {
     if (!is_cons(a)) {
       println(a);
-      fatal("audit_env: Ill-formed environment");
+      throw LispError("audit_env: Ill-formed environment");
     }
     if (!is_cons(car(a))) {
       println(a);
-      fatal("audit_env: Ill-formed pair");
+      throw LispError("audit_env: Ill-formed pair");
     }
     if (!is_atom(car(car(a)))) {
       println(a);
-      fatal("audit_env: Non-atom in environment");
+      throw LispError("audit_env: Non-atom in environment");
     }
     a = cdr(a);
   }

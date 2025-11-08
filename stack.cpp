@@ -29,7 +29,7 @@ Cell* top()
 void push(Cell* p)
 {
   --sp;
-  if (sp == stack) {
+  if (sp < &stack[0]) {
     throw LispError("push: stack overflow", true);
   }
   *sp = p;
@@ -46,7 +46,7 @@ Cell* pop()
 Cell* down(int n)
 {
   if (&sp[n] > stack_base) {
-    throw LispError("down: stack underflow");
+    throw LispError("down: stack underflow", true);
   }
   return sp[n];
 }

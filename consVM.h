@@ -20,6 +20,7 @@ public:
 
 const uint16_t ATOM_TAG = 1;
 const uint16_t CONS_TAG = 2;
+const uint16_t STRING_TAG = 3;
 
 const uint16_t MARK_FLAG = 1 << 0;
 
@@ -29,17 +30,25 @@ struct Cell
   uint16_t flags;
 };
 
+struct Atom: public Cell
+{
+  Atom* next;
+
+  // TODO: Replace n_char and string with String*
+  int n_char;
+  char string[0];
+};
+
 struct Cons: public Cell
 {
   Cell* car;
   Cell* cdr;
 };
 
-struct Atom: public Cell
+struct String: public Cell
 {
-  Atom* next;
-  int n_char;
-  char string[0];
+    int length;
+    char body[0];
 };
 
 //
@@ -68,13 +77,15 @@ extern void print(Cons* p);
 extern bool is_cons(Cell* p);
 extern void audit_cons();
 
-
 extern void init_atoms();
 extern Atom* atom(const char* p);
 extern Atom* atom(const char* p, int len);
 extern void print(Atom* p);
 extern bool is_atom(Cell* p);
 extern void audit_atoms();
+
+extern void init_strings();
+extern String* make_string(const char* s);
 
 extern void init_stack();
 extern Cell* top();

@@ -10,6 +10,8 @@ static const char* CONTINUATION_PROMPT = ">>>> ";
 enum Token {
   LPAREN,
   RPAREN,
+  PERIOD,
+  QUOTE,
   SYMBOL,
   START_OF_FILE,
   END_OF_FILE,
@@ -33,6 +35,8 @@ static char* bufp;
 static void init_reader();
 static bool parse_sexpr();
 static bool read_list();
+static bool read_quote();
+
 static Token next_token();
 static Token scan_symbol();
 static char* find_token_start();
@@ -71,6 +75,10 @@ static bool parse_sexpr()
     return read_list();
   case RPAREN:
     throw LispError("Extraneous right paren");
+  case PERIOD:
+    throw LispError("Extraneous period");
+  case QUOTE:
+    return read_quote();
   case SYMBOL:
     push(atom(token_text));
     return true;
@@ -97,33 +105,41 @@ static bool read_list()
   parse_sexpr();
   nElem++;
 
-  // TODO: If next token = '.', this is a dotted pair
-
-  while (next_token() != RPAREN) {
+  for (;;) {
+    next_token();
+    if (token == RPAREN) {
+        push(nil);
+        break;
+    }
+    if (token == PERIOD) {
+        next_token();
+        parse_sexpr();
+        if (next_token() != RPAREN) {
+            LispError("Missing right paren after dot notation");
+        }
+        break;
+    }
     parse_sexpr();
     nElem++;
   }
 
-  push(nil);
   while (nElem > 0) {
     cons();
     nElem--;
   }
 
   return true;
+}
 
-  // ---------------
-
-  // Cons* head = cons(parse_sexpr(), nil);
-  // Cons* tail = head;
-  //
-  // while (next_token() != RPAREN) {
-  //   Cons* new_tail = cons(parse_sexpr(), nil);
-  //   tail->cdr = (Cell *) new_tail;
-  //   tail = new_tail;
-  // }
-  //
-  // return (Cell*) head;
+static bool read_quote()
+{
+    next_token();
+    push(a_quote);
+    parse_sexpr();
+    push(nil);
+    cons();
+    cons();
+    return true;
 }
 
 static Token next_token()
@@ -142,6 +158,12 @@ static Token next_token()
   case ')':
     bufp++;
     return (token = RPAREN);
+  case '.':
+    bufp++;
+    return (token = PERIOD);
+  case '\'':
+    bufp++;
+    return (token = QUOTE);
   }
 
   if (std::isalnum(ch)) {

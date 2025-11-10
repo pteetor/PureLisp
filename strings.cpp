@@ -83,6 +83,12 @@ static int required_space(int len)
 
 // -------------------------------------
 
+TEST_CASE("Strings are correctly stored") {
+  const char* s = "test case";
+  String* p = intern_string(s);
+  REQUIRE(std::strcmp(p->body, s) == 0);
+}
+
 TEST_CASE("Strings are unique") {
   String* p = intern_string("foo");
   String* q = intern_string("fum");

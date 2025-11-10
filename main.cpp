@@ -21,11 +21,7 @@ int main(int argc, char** argv)
     std::cin.rdbuf(in_file.rdbuf());
   }
 
-  init_tracing();
-  init_atoms();
-  init_cons();
-  init_stack();
-  build_globals();
+  init_consvm();
 
   for (;;) {
     try {

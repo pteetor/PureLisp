@@ -4,11 +4,12 @@
 
 #include "consVM.h"
 
-static const int SPACE_SIZE = 1000;
-static const int WORD_SIZE = sizeof(int);
+// static const int SPACE_SIZE = 1000;
+// static const int WORD_SIZE = sizeof(int);
+//
+// static char space[SPACE_SIZE];
+// static int free_space = 0;
 
-static char space[SPACE_SIZE];
-static int free_space = 0;
 static Atom* chain = NULL;
 
 //
@@ -25,12 +26,12 @@ Atom* a_cons;
 Atom* a_eq;
 Atom* a_lambda;
 
-static Atom* find_atom(const char* p, int len);
-static Atom* implied_next(Atom* p);
+static Atom* find_atom(const char* p);
+// static Atom* implied_next(Atom* p);
 
 void init_atoms()
 {
-  free_space = 0;
+  // free_space = 0;
   chain = NULL;
 
   nil = atom("nil");
@@ -45,35 +46,41 @@ void init_atoms()
   a_lambda = atom("lambda");
 }
 
+// Atom* atom(const char* p)
+// {
+//   return atom(p, std::strlen(p));
+// }
+
 Atom* atom(const char* p)
 {
-  return atom(p, std::strlen(p));
-}
-
-Atom* atom(const char* p, int len)
-{
-  Atom* atm = find_atom(p, len);
+  Atom* atm = find_atom(p);
   if (atm != NULL) {
     return atm;
   }
 
-  // Round 'len' to next word boundary
-  int string_size = ((len + WORD_SIZE - 1) / WORD_SIZE) * WORD_SIZE;
-  int n_bytes = sizeof(Atom) + string_size;
-
-  atm = (Atom*) &space[free_space];
-  free_space = free_space + n_bytes;
-
-  if (free_space >= SPACE_SIZE)
-  {
-    throw LispError("atom space exhausted", true);
-  }
-
-  atm->type = ATOM_TAG;
-  atm->flags = 0;
+  atm = alloc_atom();
   atm->next = chain;
-  atm->n_char = len;
-  std::memcpy(atm->string, p, len);
+  atm->string = intern_string(p);
+  chain = atm;
+  return atm;
+
+  // Round 'len' to next word boundary
+  // int string_size = ((len + WORD_SIZE - 1) / WORD_SIZE) * WORD_SIZE;
+  // int n_bytes = sizeof(Atom) + string_size;
+  //
+  // atm = (Atom*) &space[free_space];
+  // free_space = free_space + n_bytes;
+  //
+  // if (free_space >= SPACE_SIZE)
+  // {
+  //   throw LispError("atom space exhausted", true);
+  // }
+  //
+  // atm->type = ATOM_TAG;
+  // atm->flags = 0;
+  // atm->next = chain;
+  // atm->n_char = len;
+  // std::memcpy(atm->string, p, len);
 
   // Sanity check
   // if (chain != NULL) {
@@ -83,30 +90,34 @@ Atom* atom(const char* p, int len)
   //   }
   // }
 
-  chain = atm;
-  return atm;
+
 }
 
-static Atom* find_atom(const char* p, int len)
+static Atom* find_atom(const char* p)
 {
   Atom* q = chain;
   while(q != NULL)
   {
-    if (q->n_char == len && std::memcmp(p, q->string, len) == 0) {
+    if (std::strcmp(p, q->string->body) == 0) {
       break;
     }
+
+    // if (q->n_char == len && std::memcmp(p, q->string, len) == 0) {
+    //   break;
+    // }
+
     q = q->next;
   }
   return q;
 }
 
-static Atom* implied_next(Atom* p)
-{
-  int string_size = ((p->n_char + WORD_SIZE - 1) / WORD_SIZE) * WORD_SIZE;
-  int n_bytes = sizeof(Atom) + string_size;
-
-  return (Atom*) ((char*) p + n_bytes);
-}
+// static Atom* implied_next(Atom* p)
+// {
+//   int string_size = ((p->n_char + WORD_SIZE - 1) / WORD_SIZE) * WORD_SIZE;
+//   int n_bytes = sizeof(Atom) + string_size;
+//
+//   return (Atom*) ((char*) p + n_bytes);
+// }
 
 bool is_atom(Cell* p)
 {
@@ -115,16 +126,19 @@ bool is_atom(Cell* p)
 
 void print(Atom* p)
 {
-  std::cout.write(p->string, p->n_char);
+  print(p->string);
+
+  // String* s = p->string;
+  // std::cout.write(s->body, s->length);
 }
 
-void audit_atoms()
-{
-  Atom* p = chain;
-  while (p != NULL) {
-    if (p->type != ATOM_TAG) {
-      LispError("audit_atoms: bad type", true);
-    }
-    p = p->next;
-  }
-}
+// void audit_atoms()
+// {
+//   Atom* p = chain;
+//   while (p != NULL) {
+//     if (p->type != ATOM_TAG) {
+//       LispError("audit_atoms: bad type", true);
+//     }
+//     p = p->next;
+//   }
+// }

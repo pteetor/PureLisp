@@ -13,16 +13,23 @@
 
 class LispError : public std::runtime_error {
 public:
-    bool is_fatal;
-    LispError(const std::string& message, bool is_fatal = false)
-        : std::runtime_error(message), is_fatal(is_fatal) {}
+  bool is_fatal;
+  LispError(const std::string& message, bool is_fatal = false)
+    : std::runtime_error(message), is_fatal(is_fatal) {}
 };
 
+const uint16_t FREE_TAG = 0;
 const uint16_t ATOM_TAG = 1;
 const uint16_t CONS_TAG = 2;
 const uint16_t STRING_TAG = 3;
 
 const uint16_t MARK_FLAG = 1 << 0;
+
+struct Cell;
+struct String;
+struct Atom;
+struct Cons;
+struct Free;
 
 struct Cell
 {
@@ -30,13 +37,17 @@ struct Cell
   uint16_t flags;
 };
 
+struct String: public Cell
+{
+  String* next;
+  int length;
+  char body[0];
+};
+
 struct Atom: public Cell
 {
   Atom* next;
-
-  // TODO: Replace n_char and string with String*
-  int n_char;
-  char string[0];
+  String* string;
 };
 
 struct Cons: public Cell
@@ -45,10 +56,11 @@ struct Cons: public Cell
   Cell* cdr;
 };
 
-struct String: public Cell
+// Must have: sizeof(Cons) == sizeof(Atom) == sizeof(Free)
+struct Free: public Cell
 {
-    int length;
-    char body[0];
+    Free* next;
+    void* _unused;
 };
 
 //
@@ -56,8 +68,8 @@ struct String: public Cell
 //
 extern Atom* nil;
 extern Atom *a_t, *a_quote, *a_cond, *a_atom,
-            *a_car, *a_cdr, *a_cons, *a_eq,
-            *a_lambda;
+*a_car, *a_cdr, *a_cons, *a_eq,
+*a_lambda;
 
 // Pre-defined functions are stored in global_env
 extern Cell* global_env;
@@ -67,8 +79,6 @@ extern bool tracing;
 //
 // Global functions ----
 //
-
-extern void init_cons();
 extern void cons();
 extern void cons(Cell* car, Cell* cdr);
 extern Cell* car(Cell* p);
@@ -79,13 +89,14 @@ extern void audit_cons();
 
 extern void init_atoms();
 extern Atom* atom(const char* p);
-extern Atom* atom(const char* p, int len);
+// extern Atom* atom(const char* p, int len);
 extern void print(Atom* p);
 extern bool is_atom(Cell* p);
 extern void audit_atoms();
 
 extern void init_strings();
-extern String* make_string(const char* s);
+extern String* intern_string(const char* s);
+void print(String* s);
 
 extern void init_stack();
 extern Cell* top();
@@ -119,6 +130,18 @@ struct GCStatus {
     heap_size(hs), n_marked(nm), n_recovered(nr) {}
 };
 
+extern void init_heap();
+extern Atom* alloc_atom();
+extern Cons* alloc_cons();
 extern GCStatus gc();
 extern int mark(Cell* p);
 extern int mark_stack();
+
+inline void init_consvm()
+{
+  init_stack();
+  init_strings();
+  init_heap();
+  init_atoms();
+  build_globals();
+}

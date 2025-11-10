@@ -28,7 +28,6 @@ void atom_offsets()
     int type_offset = (int) ((char*) &x.type - base);
     int flags_offset = (int) ((char*) &x.flags - base);
     int next_offset = (int) ((char*) &x.next - base);
-    int n_char_offset = (int) ((char*) &x.n_char - base);
     int string_offset = (int) ((char*) &x.string - base);
 
     printf("\n");
@@ -36,7 +35,6 @@ void atom_offsets()
     printf("   type offset = %d\n", type_offset);
     printf("   flags offset = %d\n", flags_offset);
     printf("   next offset = %d\n", next_offset);
-    printf("   n_char offset = %d\n", n_char_offset);
     printf("   string offset = %d\n", string_offset);
 }
 

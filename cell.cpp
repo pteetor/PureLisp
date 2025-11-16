@@ -8,15 +8,15 @@ void print(Cell* p)
 {
   switch (p->type)
   {
-  case ATOM_TAG:
+  case Tag::ATOM_TAG:
     print((Atom*) p);
     break;
-  case CONS_TAG:
+  case Tag::CONS_TAG:
     print((Cons*) p);
     break;
   default:
     // DEBUG
-    std::cout << "Cell type: " << p->type << std::endl;
+    std::cout << "Cell type: " << (int) (p->type) << std::endl;
     throw LispError("print: invalid cell type", true);
   }
 }

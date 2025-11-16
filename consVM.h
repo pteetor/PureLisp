@@ -20,16 +20,24 @@ public:
 
 // Cell definitions ----
 
-struct Cell
-{
-  uint16_t type;
-  uint16_t flags;
+enum class Tag : uint8_t {
+    FREE_TAG = 0,
+    ATOM_TAG = 1,
+    CONS_TAG = 2,
+    STRING_TAG = 3,
+    OPCODE = 4
 };
 
-const uint16_t FREE_TAG = 0;
-const uint16_t ATOM_TAG = 1;
-const uint16_t CONS_TAG = 2;
-const uint16_t STRING_TAG = 3;
+enum class Oper : uint8_t {
+    NOP = 0
+};
+
+struct Cell
+{
+  Tag type;
+  Oper oper;        // used only for type == OPCODE
+  uint16_t flags;
+};
 
 const uint16_t MARK_FLAG = 1 << 0;
 
@@ -43,6 +51,7 @@ inline void clear_mark(Cell* p) { p->flags &= ~MARK_FLAG; }
 struct String;
 struct Atom;
 struct Cons;
+struct Opcode;
 struct Free;
 
 struct String: public Cell
@@ -64,7 +73,13 @@ struct Cons: public Cell
   Cell* cdr;
 };
 
-// Must have: sizeof(Cons) == sizeof(Atom) == sizeof(Free)
+struct Opcode: public Cell
+{
+    Cell* opand1;
+    Cell* opand2;
+};
+
+// Must have: sizeof(Cons) == sizeof(Atom) == sizeof(Opcode) == sizeof(Free)
 struct Free: public Cell
 {
     Free* next;

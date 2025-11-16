@@ -20,7 +20,7 @@ void cons() {
   validate_cell_ptr(down(0));   // cdr
 
   Cons* p = alloc_cons();
-  p->type = CONS_TAG;
+  p->type = Tag::CONS_TAG;
   p->cdr = pop();
   p->car = pop();
   push(p);
@@ -29,12 +29,12 @@ void cons() {
 
 bool is_cons(Cell* p)
 {
-  return (p->type == CONS_TAG);
+  return (p->type == Tag::CONS_TAG);
 }
 
 Cell* car(Cell* p)
 {
-  if (p->type != CONS_TAG)
+  if (p->type != Tag::CONS_TAG)
   {
     throw LispError("car: not a cons", true);
   }
@@ -44,7 +44,7 @@ Cell* car(Cell* p)
 
 Cell* cdr(Cell* p)
 {
-  if (p->type != CONS_TAG)
+  if (p->type != Tag::CONS_TAG)
   {
     throw LispError("cdr: not a cons", true);
   }
@@ -64,19 +64,19 @@ void print(Cons* p)
     std::cout << " ";
     switch (q->type)
     {
-    case ATOM_TAG:
+    case Tag::ATOM_TAG:
       std::cout << ". ";
       print((Atom*) q);
       std::cout << ")";
       return;
-    case CONS_TAG:
+    case Tag::CONS_TAG:
       r = (Cons*) q;
       print(r->car);
       q = r->cdr;
       break;
     default:
       // DEBUG
-      std::cout << "Cell type: " << q->type << std::endl;
+      std::cout << "Cell type: " << (int) (q->type) << std::endl;
 
     throw LispError("print: invalid cell type", true);
     }
@@ -103,14 +103,14 @@ void print(Cons* p)
 //   for (int i = 0; i < N_CONS-1; ++i)
 //   {
 //     p = &heap[i];
-//     p->type = CONS_TAG;
+//     p->type = Tag::CONS_TAG;
 //     p->flags = 0;
 //     p->car = &heap[i+1];
 //     p->cdr = NULL;
 //   }
 //
 //   p = &heap[N_CONS-1];
-//   p->type = CONS_TAG;
+//   p->type = Tag::CONS_TAG;
 //   p->flags = 0;
 //   p->car = NULL;
 //   p->cdr = NULL;

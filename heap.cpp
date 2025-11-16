@@ -20,13 +20,13 @@ void init_heap()
   for (int i = 0; i < N_CELLS-1; ++i)
   {
     p = &heap[i];
-    p->type = FREE_TAG;
+    p->type = Tag::FREE_TAG;
     p->flags = 0;
     p->next = &heap[i+1];
   }
 
   p = &heap[N_CELLS-1];
-  p->type = FREE_TAG;
+  p->type = Tag::FREE_TAG;
   p->flags = 0;
   p->next = NULL;
 }
@@ -49,7 +49,7 @@ static Free* alloc_heap()
 Cons* alloc_cons()
 {
   Cons* p = (Cons*) alloc_heap();
-  p->type = CONS_TAG;
+  p->type = Tag::CONS_TAG;
   p->flags = 0;
   return p;
 }
@@ -57,7 +57,7 @@ Cons* alloc_cons()
 Atom* alloc_atom()
 {
   Atom* p = (Atom*) alloc_heap();
-  p->type = ATOM_TAG;
+  p->type = Tag::ATOM_TAG;
   p->flags = 0;
   return p;
 }
@@ -99,14 +99,14 @@ int mark(Cell* p)
   ++nMarked;
 
   switch (p->type) {
-  case CONS_TAG:
+  case Tag::CONS_TAG:
   {
     Cons* q = (Cons*) p;
     nMarked += mark(q->car);
     nMarked += mark(q->cdr);
   }
     break;
-  case ATOM_TAG:
+  case Tag::ATOM_TAG:
   {
     Atom* a = (Atom*) p;
     mark(a->string);
@@ -148,9 +148,9 @@ void audit_heap()
     Cell* p = &heap[i];
     switch (p->type)
     {
-    case FREE_TAG:
-    case ATOM_TAG:
-    case CONS_TAG:
+    case Tag::FREE_TAG:
+    case Tag::ATOM_TAG:
+    case Tag::CONS_TAG:
       break;
     default:
       throw LispError("audit_heap: Bad type", true);

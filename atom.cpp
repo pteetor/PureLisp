@@ -76,7 +76,7 @@ Atom* atom(const char* p)
   //   throw LispError("atom space exhausted", true);
   // }
   //
-  // atm->type = ATOM_TAG;
+  // atm->type = Tag::ATOM_TAG;
   // atm->flags = 0;
   // atm->next = chain;
   // atm->n_char = len;
@@ -121,7 +121,7 @@ static Atom* find_atom(const char* p)
 
 bool is_atom(Cell* p)
 {
-  return (p->type == ATOM_TAG);
+  return (p->type == Tag::ATOM_TAG);
 }
 
 void print(Atom* p)
@@ -136,7 +136,7 @@ void print(Atom* p)
 // {
 //   Atom* p = chain;
 //   while (p != NULL) {
-//     if (p->type != ATOM_TAG) {
+//     if (p->type != Tag::ATOM_TAG) {
 //       LispError("audit_atoms: bad type", true);
 //     }
 //     p = p->next;

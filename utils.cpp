@@ -54,9 +54,9 @@ void validate_cell_ptr(Cell* p)
 
   switch (p->type)
   {
-  case ATOM_TAG:
+  case Tag::ATOM_TAG:
     break;
-  case CONS_TAG:
+  case Tag::CONS_TAG:
     if (car(p) == NULL)
     {
       throw LispError("validate_cell_ptr: NULL car ptr", true);
@@ -65,11 +65,11 @@ void validate_cell_ptr(Cell* p)
     {
       throw LispError("validate_cell_ptr: NULL cdr ptr", true);
     }
-    if (car(p)->type != ATOM_TAG && car(p)->type != CONS_TAG)
+    if (car(p)->type != Tag::ATOM_TAG && car(p)->type != Tag::CONS_TAG)
     {
       throw LispError("validate_cell_ptr: Bad car ptr", true);
     }
-    if (cdr(p)->type != ATOM_TAG && cdr(p)->type != CONS_TAG)
+    if (cdr(p)->type != Tag::ATOM_TAG && cdr(p)->type != Tag::CONS_TAG)
     {
       throw LispError("validate_cell_ptr: Bad cdr ptr", true);
     }

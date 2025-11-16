@@ -62,6 +62,14 @@ Atom* alloc_atom()
   return p;
 }
 
+Instr* alloc_instr()
+{
+  Instr* p = (Instr*) alloc_heap();
+  p->type = Tag::INSTR;
+  p->flags = 0;
+  return p;
+}
+
 // -------------------------------------
 
 GCStatus gc()

@@ -25,17 +25,20 @@ enum class Tag : uint8_t {
     ATOM_TAG = 1,
     CONS_TAG = 2,
     STRING_TAG = 3,
-    OPCODE = 4
+    INSTR = 4
 };
 
-enum class Oper : uint8_t {
-    NOP = 0
+enum class Opcode : uint8_t {
+    NOP = 0,
+    PUSH_SEXPR,
+    PRINT,
+    PRINTLN
 };
 
 struct Cell
 {
   Tag type;
-  Oper oper;        // used only for type == OPCODE
+  Opcode oper;        // used only for type == INSTR
   uint16_t flags;
 };
 
@@ -51,7 +54,7 @@ inline void clear_mark(Cell* p) { p->flags &= ~MARK_FLAG; }
 struct String;
 struct Atom;
 struct Cons;
-struct Opcode;
+struct Instr;
 struct Free;
 
 struct String: public Cell
@@ -67,32 +70,41 @@ struct Atom: public Cell
   String* string;
 };
 
+
 struct Cons: public Cell
 {
   Cell* car;
   Cell* cdr;
 };
 
-struct Opcode: public Cell
+struct Instr: public Cell
 {
     Cell* opand1;
     Cell* opand2;
 };
 
-// Must have: sizeof(Cons) == sizeof(Atom) == sizeof(Opcode) == sizeof(Free)
+// Must have: sizeof(Cons) == sizeof(Atom) == sizeof(Instr) == sizeof(Free)
 struct Free: public Cell
 {
     Free* next;
     void* _unused;
 };
 
+inline bool is_string(Cell* p) { return (p->type == Tag::STRING_TAG); }
+inline bool is_atom(Cell* p) { return (p->type == Tag::ATOM_TAG); }
+inline bool is_cons(Cell* p) { return (p->type == Tag::CONS_TAG); }
+inline bool is_instr(Cell* p) { return p->type == Tag::INSTR; }
+
 //
-// Global variables
+// Global atoms
 //
 extern Atom* nil;
 extern Atom *a_t, *a_quote, *a_cond, *a_atom,
 *a_car, *a_cdr, *a_cons, *a_eq,
 *a_lambda;
+
+inline bool is_nil(Cell* p)  { return p == nil; }
+inline bool non_nil(Cell* p) { return p != nil; }
 
 // Pre-defined functions are stored in global_env
 extern Cell* global_env;
@@ -116,6 +128,9 @@ extern Atom* atom(const char* p);
 extern void print(Atom* p);
 extern bool is_atom(Cell* p);
 extern void audit_atoms();
+
+extern void instr(Opcode oper, Cell* opand1 , Cell* opand2);
+extern void instr(Opcode oper);
 
 extern void init_strings();
 extern String* intern_string(const char* s);
@@ -156,6 +171,7 @@ struct GCStatus {
 extern void init_heap();
 extern Atom* alloc_atom();
 extern Cons* alloc_cons();
+extern Instr* alloc_instr();
 extern GCStatus gc();
 extern int mark(Cell* p);
 extern int mark_stack();

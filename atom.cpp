@@ -119,11 +119,6 @@ static Atom* find_atom(const char* p)
 //   return (Atom*) ((char*) p + n_bytes);
 // }
 
-bool is_atom(Cell* p)
-{
-  return (p->type == Tag::ATOM_TAG);
-}
-
 void print(Atom* p)
 {
   print(p->string);

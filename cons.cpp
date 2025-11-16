@@ -27,11 +27,6 @@ void cons() {
   return;
 }
 
-bool is_cons(Cell* p)
-{
-  return (p->type == Tag::CONS_TAG);
-}
-
 Cell* car(Cell* p)
 {
   if (p->type != Tag::CONS_TAG)

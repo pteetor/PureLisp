@@ -17,15 +17,15 @@ cons(list(caller_ep, caller_ip, caller_sp), list(local_1, local_2, ..., local_n)
 
 ## Operations
 
-PUSH_PTR <cellp>
+PUSH_SEXPR <cellp>
 
 PUSH_LOCAL <i>   - push ith local of the current environment
 
 PUSH_ENV <i>   - push ith lexical environment
 PUSH_VAR <j>  - jth variable of the environment on the top of stack
 
-PUSH_PTR<env>
-PUSH_PTR<body>
+PUSH_SEXPR<env>
+PUSH_SEXPR<body>
 CREATE_FUNCTION
 
 PUSH <fn>
@@ -48,21 +48,21 @@ PRINT
 
 ## MVP increments
 
-Write
-- push_ptr
+Implement
+- push_sexpr
 - print
 
 Test
-    push_ptr list(hello world)
+    push_sexpr list(hello world)
     print
 
-Write
+Implement
 - cons
 
 Test
-    push_ptr hello
-    push_ptr world
-    push_ptr nil
+    push_sexpr hello
+    push_sexpr world
+    push_sexpr nil
     cons
     cons
     print

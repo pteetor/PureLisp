@@ -21,7 +21,7 @@ public:
 // Cell definitions ----
 
 enum class Tag : uint8_t {
-    FREE_TAG = 0,
+  FREE_TAG = 0,
     ATOM_TAG = 1,
     CONS_TAG = 2,
     STRING_TAG = 3,
@@ -29,10 +29,15 @@ enum class Tag : uint8_t {
 };
 
 enum class Opcode : uint8_t {
-    NOP = 0,
-    PUSH_SEXPR,
+  NOP = 0,
+    ATOM,
+    CAR,
+    CDR,
+    CONS,
+    EQ,
     PRINT,
-    PRINTLN
+    PRINTLN,
+    PUSH_SEXPR
 };
 
 struct Cell
@@ -77,17 +82,21 @@ struct Cons: public Cell
   Cell* cdr;
 };
 
+// One instruction in the virrtual machine
 struct Instr: public Cell
 {
-    Cell* opand1;
-    Cell* opand2;
+  union {
+  int n1;
+  Cell* opand1;
+};
+  Cell* opand2;
 };
 
 // Must have: sizeof(Cons) == sizeof(Atom) == sizeof(Instr) == sizeof(Free)
 struct Free: public Cell
 {
-    Free* next;
-    void* _unused;
+  Free* next;
+  void* _unused;
 };
 
 inline bool is_string(Cell* p) { return (p->type == Tag::STRING_TAG); }
@@ -131,6 +140,7 @@ extern void audit_atoms();
 
 extern void instr(Opcode oper, Cell* opand1 , Cell* opand2);
 extern void instr(Opcode oper);
+extern void print(Instr* in);
 
 extern void init_strings();
 extern String* intern_string(const char* s);
@@ -152,6 +162,7 @@ extern void eval();
 extern void eval(Cell* a, Cell* e);
 
 extern bool is_true(Cell*);
+extern void make_list(int n);
 extern void init_tracing();
 extern void trace(const char* tag,
                   Cell* cell = NULL, Cell* cell2 = NULL);

@@ -19,7 +19,11 @@ void instr(Opcode oper)
     p->opand2 = pop();
     p->opand1 = pop();
     push(p);
-    return;
+}
+
+void print(Instr* in)
+{
+    std::cout << "[instr " << (int) in->oper << " " << in->opand1 << " " << in->opand2 << "]" <<  std::endl;
 }
 
 //
@@ -45,9 +49,28 @@ void interp_code()
         {
             case Opcode::NOP:
                 break;
+            case Opcode::ATOM:
+                push(is_atom(pop()) ? a_t : nil);
+                break;
+            case Opcode::CAR:
+                push(car(pop()));
+                break;
+            case Opcode::CDR:
+                push(cdr(pop()));
+                break;
+            case Opcode::CONS:
+                cons();
+                break;
             case Opcode::PRINT:
                 print(top());
                 drop(1);
+                break;
+            case Opcode::EQ:
+                {
+                    Cell* a = pop();
+                    Cell* b = pop();
+                    push(a == b ? a_t : nil);
+                }
                 break;
             case Opcode::PRINTLN:
                 println(top());
@@ -70,7 +93,7 @@ void interp_code()
 //  Unit tests
 //
 
-TEST_CASE("return nil") {
+TEST_CASE("bytecode for push nil") {
     instr(Opcode::PUSH_SEXPR, nil, nil);
     push(nil);
     cons();
@@ -80,23 +103,91 @@ TEST_CASE("return nil") {
     drop(1);
 }
 
+TEST_CASE("bytecode for push atom") {
+    Atom* hello = atom("hello");
 
-// THIS IS NOT WORKING
-TEST_CASE("return (quote (hello world))") {
-    // Sythesize program:
-    //   - (push_expr (quote (hello world)))
-    //   - (println)
-    push(atom("hello"));
-    push(atom("world"));
+    instr(Opcode::PUSH_SEXPR, hello, nil);
     push(nil);
     cons();
-    cons();
-
-    push(nil);
-    instr(Opcode::PUSH_SEXPR);
-    cons();
-
     interp_code();
-    print(top());
+
+    REQUIRE(top() == hello);
     drop(1);
+}
+
+TEST_CASE("bytecode for cons, car, and cdr") {
+    Atom* hello = atom("hello");
+    Atom* world = atom("world");
+
+    // Test CAR
+    instr(Opcode::PUSH_SEXPR, hello, nil);
+    instr(Opcode::PUSH_SEXPR, world, nil);
+    instr(Opcode::CONS, nil, nil);
+    instr(Opcode::CAR, nil, nil);
+    make_list(4);
+    interp_code();
+
+    REQUIRE(top() == hello);
+    drop(1);
+
+    // Test CDR
+    instr(Opcode::PUSH_SEXPR, hello, nil);
+    instr(Opcode::PUSH_SEXPR, world, nil);
+    instr(Opcode::CONS, nil, nil);
+    instr(Opcode::CDR, nil, nil);
+    make_list(4);
+    interp_code();
+
+    REQUIRE(top() == world);
+    drop(1);
+}
+
+TEST_CASE("bytecode for atom predicate") {
+  Atom* hello = atom("hello");
+  Atom* world = atom("world");
+
+  // ATOM predicate - true case
+  instr(Opcode::PUSH_SEXPR, hello, nil);
+  instr(Opcode::ATOM, nil, nil);
+  make_list(2);
+  interp_code();
+
+  REQUIRE(is_true(top()));
+  drop(1);
+
+  // ATOM predicate - false case
+  instr(Opcode::PUSH_SEXPR, hello, nil);
+  instr(Opcode::PUSH_SEXPR, world, nil);
+  instr(Opcode::CONS, nil, nil);
+  instr(Opcode::ATOM, nil, nil);
+  make_list(4);
+  interp_code();
+
+  REQUIRE(is_nil(top()));
+  drop(1);
+}
+
+TEST_CASE("bytecode for eq predicate") {
+  Atom* hello = atom("hello");
+  Atom* world = atom("world");
+
+  // EQ predicate - true case
+  instr(Opcode::PUSH_SEXPR, hello, nil);
+  instr(Opcode::PUSH_SEXPR, hello, nil);
+  instr(Opcode::EQ, nil, nil);
+  make_list(3);
+  interp_code();
+
+  REQUIRE(is_true(top()));
+  drop(1);
+
+  // EQ predicate - false case
+  instr(Opcode::PUSH_SEXPR, hello, nil);
+  instr(Opcode::PUSH_SEXPR, world, nil);
+  instr(Opcode::EQ, nil, nil);
+  make_list(3);
+  interp_code();
+
+  REQUIRE(is_nil(top()));
+  drop(1);
 }

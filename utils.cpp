@@ -20,6 +20,14 @@ bool is_true(Cell* p)
   return (p != nil);
 }
 
+void make_list(int n)
+{
+  push(nil);
+  while (n-- > 0) {
+    cons();
+  }
+}
+
 void init_tracing()
 {
   const char* TRACE = std::getenv("TRACE");
@@ -46,6 +54,19 @@ void trace(const char* tag, Cell* cell, Cell* cell2)
   }
 }
 
+static bool is_valid_tag(Tag t)
+{
+  switch (t) {
+  case Tag::ATOM_TAG:
+  case Tag::CONS_TAG:
+  case Tag::STRING_TAG:
+  case Tag::INSTR:
+    return true;
+  default:
+    return false;
+  }
+}
+
 void validate_cell_ptr(Cell* p)
 {
   if (p == NULL) {
@@ -65,12 +86,10 @@ void validate_cell_ptr(Cell* p)
     {
       throw LispError("validate_cell_ptr: NULL cdr ptr", true);
     }
-    if (car(p)->type != Tag::ATOM_TAG && car(p)->type != Tag::CONS_TAG)
-    {
+    if (!is_valid_tag(car(p)->type)) {
       throw LispError("validate_cell_ptr: Bad car ptr", true);
     }
-    if (cdr(p)->type != Tag::ATOM_TAG && cdr(p)->type != Tag::CONS_TAG)
-    {
+    if (!is_valid_tag(cdr(p)->type)) {
       throw LispError("validate_cell_ptr: Bad cdr ptr", true);
     }
     break;

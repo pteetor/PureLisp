@@ -14,6 +14,9 @@ void print(Cell* p)
   case Tag::CONS_TAG:
     print((Cons*) p);
     break;
+  case Tag::INSTR:
+    print((Instr*) p);
+    break;
   default:
     // DEBUG
     std::cout << "Cell type: " << (int) (p->type) << std::endl;

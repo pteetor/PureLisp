@@ -46,11 +46,6 @@ void init_atoms()
   a_lambda = atom("lambda");
 }
 
-// Atom* atom(const char* p)
-// {
-//   return atom(p, std::strlen(p));
-// }
-
 Atom* atom(const char* p)
 {
   Atom* atm = find_atom(p);
@@ -63,34 +58,6 @@ Atom* atom(const char* p)
   atm->string = intern_string(p);
   chain = atm;
   return atm;
-
-  // Round 'len' to next word boundary
-  // int string_size = ((len + WORD_SIZE - 1) / WORD_SIZE) * WORD_SIZE;
-  // int n_bytes = sizeof(Atom) + string_size;
-  //
-  // atm = (Atom*) &space[free_space];
-  // free_space = free_space + n_bytes;
-  //
-  // if (free_space >= SPACE_SIZE)
-  // {
-  //   throw LispError("atom space exhausted", true);
-  // }
-  //
-  // atm->type = Tag::ATOM_TAG;
-  // atm->flags = 0;
-  // atm->next = chain;
-  // atm->n_char = len;
-  // std::memcpy(atm->string, p, len);
-
-  // Sanity check
-  // if (chain != NULL) {
-  //   Atom* imp = implied_next(chain);
-  //   if (atm != imp) {
-  //     fatal("atom: alloc failure?");
-  //   }
-  // }
-
-
 }
 
 static Atom* find_atom(const char* p)

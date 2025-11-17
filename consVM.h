@@ -35,6 +35,7 @@ enum class Opcode : uint8_t {
     CDR,
     CONS,
     EQ,
+    IF,
     PRINT,
     PRINTLN,
     PUSH_SEXPR

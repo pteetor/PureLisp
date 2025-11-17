@@ -72,6 +72,13 @@ void interp_code()
                     push(a == b ? a_t : nil);
                 }
                 break;
+            case Opcode::IF:
+                if (is_true(pop())) {
+                    ip = (Cons*) (instr->opand1);
+                } else {
+                    ip = (Cons*) (instr->opand2);
+                }
+                break;
             case Opcode::PRINTLN:
                 println(top());
                 drop(1);
@@ -190,4 +197,40 @@ TEST_CASE("bytecode for eq predicate") {
 
   REQUIRE(is_nil(top()));
   drop(1);
+}
+
+TEST_CASE("if branches correctly") {
+    Atom* correct = atom("correctBranch");
+    Atom* wrong = atom("wrongBranch");
+
+
+    // "then" case
+    instr(Opcode::PUSH_SEXPR, a_t, nil);
+
+    instr(Opcode::PUSH_SEXPR, correct, nil);
+    make_list(1);
+    instr(Opcode::PUSH_SEXPR, wrong, nil);
+    make_list(1);
+    instr(Opcode::IF);
+
+    make_list(2);
+    interp_code();
+
+    REQUIRE(top() == correct);
+    drop(1);
+
+    // "else" case
+    instr(Opcode::PUSH_SEXPR, nil, nil);
+
+    instr(Opcode::PUSH_SEXPR, wrong, nil);
+    make_list(1);
+    instr(Opcode::PUSH_SEXPR, correct, nil);
+    make_list(1);
+    instr(Opcode::IF);
+
+    make_list(2);
+    interp_code();
+
+    REQUIRE(top() == correct);
+    drop(1);
 }

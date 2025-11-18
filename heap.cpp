@@ -8,6 +8,7 @@
 const int N_CELLS = 1000 * 1000;;
 
 static int sweep_heap();
+static void update_string_pointer(Cell* p);
 
 static Free heap[N_CELLS];
 static Free* free_list;
@@ -78,7 +79,10 @@ GCStatus gc()
 
   int nMarked = mark(global_env);
   nMarked += mark_stack();
+
+  int nBytesRecovered = sweep_strings();
   int nRecovered = sweep_heap();
+  compactify_strings();
 
   if (free_list == NULL)
   {
@@ -141,10 +145,19 @@ static int sweep_heap()
       ++nRecovered;
     } else {
       p->flags &= ~MARK_FLAG;
+      update_string_pointer(p);
     }
   }
 
   return nRecovered;
+}
+
+static void update_string_pointer(Cell* p)
+{
+  if (p->type == Tag::ATOM_TAG) {
+    Atom* q = as_atom(p);
+    q->string = q->string->forward;
+  }
 }
 
 // -------------------------------------

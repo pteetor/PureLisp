@@ -27,6 +27,14 @@ void cons() {
   return;
 }
 
+Cons* as_cons(Cell* p)
+{
+  if (p->type != Tag::CONS_TAG) {
+    LispError("as_cons: not a cons");
+  }
+  return (Cons*) p;
+}
+
 Cell* car(Cell* p)
 {
   if (p->type != Tag::CONS_TAG)
@@ -78,114 +86,6 @@ void print(Cons* p)
   }
   std::cout << ")";
 }
-
-// -------------------------------------
-
-//
-// Heap management and garbage collection
-//
-
-// static int sweep();
-//
-// static Cons heap[N_CONS];
-// static Cons* free_list;
-//
-// void init_heap()
-// {
-//   free_list = &heap[0];
-//
-//   Cons* p;
-//   for (int i = 0; i < N_CONS-1; ++i)
-//   {
-//     p = &heap[i];
-//     p->type = Tag::CONS_TAG;
-//     p->flags = 0;
-//     p->car = &heap[i+1];
-//     p->cdr = NULL;
-//   }
-//
-//   p = &heap[N_CONS-1];
-//   p->type = Tag::CONS_TAG;
-//   p->flags = 0;
-//   p->car = NULL;
-//   p->cdr = NULL;
-// }
-//
-// Cons* alloc_heap()
-// {
-//   if (free_list == NULL) {
-//     GCStatus status = gc();
-//     std::cout <<
-//       "gc: Heap size " << status.heap_size <<
-//         ", marked " << status.n_marked <<
-//           ", recovered " << status.n_recovered << std::endl;
-//   }
-//
-//   Cons* p = free_list;
-//   free_list = (Cons*) free_list->car;
-//   return p;
-// }
-//
-// GCStatus gc()
-// {
-//   std::cout << std::endl << "gc: Starting" << std::endl;
-//
-//   int nMarked = mark(global_env);
-//   nMarked += mark_stack();
-//   int nRecovered = sweep();
-//
-//   if (free_list == NULL)
-//   {
-//     throw LispError("gc: Cons heap exhausted", true);
-//   }
-//
-//   std::cout << "gc: Done" << std::endl;
-//
-//   return GCStatus(N_CONS, nMarked, nRecovered);
-// }
-//
-// int mark(Cell* p)
-// {
-//   // Sanity check
-//   if (p == NULL) {
-//     throw LispError("gc: null pointer to mark", true);
-//   }
-//
-//   int nMarked = 0;
-//
-//   if (is_cons(p)) {
-//     if ((p->flags & MARK_FLAG) == 0) {
-//       p->flags |= MARK_FLAG;
-//       ++nMarked;
-//
-//       Cons* q = (Cons*) p;
-//       nMarked += mark(q->car);
-//       nMarked += mark(q->cdr);
-//     }
-//   }
-//
-//   return nMarked;
-// }
-//
-// static int sweep()
-// {
-//   free_list = NULL;
-//   int nRecovered = 0;
-//
-//   for (int i = 0; i < N_CONS; ++i)
-//   {
-//     Cons* p = &heap[i];
-//     if ((p->flags & MARK_FLAG) == 0) {
-//       p->car = free_list;
-//       free_list = p;
-//       ++nRecovered;
-//     } else {
-//       p->flags &= ~MARK_FLAG;
-//     }
-//   }
-//
-//   return nRecovered;
-// }
 
 // -------------------------------------
 

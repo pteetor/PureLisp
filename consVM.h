@@ -65,7 +65,7 @@ struct Free;
 
 struct String: public Cell
 {
-  String* next;
+  String* forward;
   int length;
   char body[0];
 };
@@ -129,14 +129,13 @@ extern void cons(Cell* car, Cell* cdr);
 extern Cell* car(Cell* p);
 extern Cell* cdr(Cell* p);
 extern void print(Cons* p);
-extern bool is_cons(Cell* p);
+extern Cons* as_cons(Cell* p);
 extern void audit_cons();
 
 extern void init_atoms();
 extern Atom* atom(const char* p);
-// extern Atom* atom(const char* p, int len);
 extern void print(Atom* p);
-extern bool is_atom(Cell* p);
+extern Atom* as_atom(Cell* p);
 extern void audit_atoms();
 
 extern void instr(Opcode oper, Cell* opand1 , Cell* opand2);
@@ -187,6 +186,8 @@ extern Instr* alloc_instr();
 extern GCStatus gc();
 extern int mark(Cell* p);
 extern int mark_stack();
+extern int sweep_strings();
+extern void compactify_strings();
 
 inline void init_consvm()
 {

@@ -68,39 +68,20 @@ static Atom* find_atom(const char* p)
     if (std::strcmp(p, q->string->body) == 0) {
       break;
     }
-
-    // if (q->n_char == len && std::memcmp(p, q->string, len) == 0) {
-    //   break;
-    // }
-
     q = q->next;
   }
   return q;
 }
 
-// static Atom* implied_next(Atom* p)
-// {
-//   int string_size = ((p->n_char + WORD_SIZE - 1) / WORD_SIZE) * WORD_SIZE;
-//   int n_bytes = sizeof(Atom) + string_size;
-//
-//   return (Atom*) ((char*) p + n_bytes);
-// }
+Atom* as_atom(Cell* p)
+{
+  if (p->type != Tag::ATOM_TAG) {
+    LispError("as_atom: not an atom");
+  }
+  return (Atom*) p;
+}
 
 void print(Atom* p)
 {
   print(p->string);
-
-  // String* s = p->string;
-  // std::cout.write(s->body, s->length);
 }
-
-// void audit_atoms()
-// {
-//   Atom* p = chain;
-//   while (p != NULL) {
-//     if (p->type != Tag::ATOM_TAG) {
-//       LispError("audit_atoms: bad type", true);
-//     }
-//     p = p->next;
-//   }
-// }

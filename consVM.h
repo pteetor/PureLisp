@@ -136,8 +136,7 @@ extern void init_atoms();
 extern Atom* atom(const char* p);
 extern void print(Atom* p);
 extern Atom* as_atom(Cell* p);
-extern void reset_chain();
-extern void insert_into_chain(Atom* p);
+extern void sweep_atoms();
 extern void audit_atoms();
 
 extern void instr(Opcode oper, Cell* opand1 , Cell* opand2);

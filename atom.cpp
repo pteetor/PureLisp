@@ -31,7 +31,7 @@ static Atom* find_atom(const char* p);
 
 void init_atoms()
 {
-  reset_chain();
+  chain = NULL;
 
   nil = atom("nil");
   a_t = atom("t");
@@ -85,15 +85,34 @@ void print(Atom* p)
   print(p->string);
 }
 
-void reset_chain()
+void sweep_atoms()
 {
-  chain = NULL;
-}
+  // Find the first atom that we want to keep
+  Atom* p = chain;
+  while (p != NULL) {
+    if (is_marked(p)) {
+      break;
+    }
+    p = p->next;
+  }
 
-void insert_into_chain(Atom* p)
-{
-  p->next = chain;
+  // That becomes the new head of the chain
   chain = p;
+  Atom* q;
+
+  // Remove all unmarked atoms from the chain
+  // Find all atoms on the chain
+  //   - For marked atoms, update their string pointer
+  //   - For unmarked atoms, remove from chain
+  while (p != NULL) {
+    p->string = p->string->forward;
+    q = p->next;
+    while (q != NULL && not_marked(q)) {
+      q = q->next;
+    }
+    p->next = q;
+    p = q;
+  }
 }
 
 // -------------------------------------

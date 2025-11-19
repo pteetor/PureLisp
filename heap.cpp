@@ -84,6 +84,7 @@ GCStatus gc(const char* context)
   nMarked += mark_stack();
 
   int nBytesRecovered = sweep_strings();
+  sweep_atoms();
   int nRecovered = sweep_heap();
   compactify_strings();
 
@@ -141,9 +142,8 @@ int mark(Cell* p)
 
 static int sweep_heap()
 {
-  reset_chain();
-  free_list = NULL;
   int nRecovered = 0;
+  free_list = NULL;
 
   for (int i = 0; i < N_CELLS; ++i)
   {
@@ -155,11 +155,6 @@ static int sweep_heap()
       ++nRecovered;
     } else {
       clear_mark(p);
-      if (is_atom(p)) {
-        Atom* q = as_atom(p);
-        q->string = q->string->forward;
-        insert_into_chain(q);
-      }
     }
   }
 

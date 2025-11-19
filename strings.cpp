@@ -40,7 +40,10 @@ String* intern_string(const char* s)
 
   int n = required_space(len);
   if (n > n_free) {
-    LispError("String space exhausted", true);
+    gc("string space exhausted");
+    if (n > n_free) {
+      LispError("String space exhausted", true);
+    }
   }
 
   p = frontier;
@@ -90,27 +93,100 @@ static String* find_string(const char* s)
 
 int sweep_strings()
 {
-  int nBytesRecovered = 0;
+  // Find the first not-marked string,
+  // For marked strings, set forward = self (i.e., not moved)
+  String* p = (String*) space;
+  while (p < frontier) {
+    if (not_marked(p)) {
+      break;
+    }
+    p->forward = p;
+    p = next_string(p);
+  }
 
-  // Find a not-marked string
-  // (for marked strings, set forward = self)
-
-  // If all strings marked, done
+  // If all strings are marked, done
+  if (p == frontier) {
+    return 0;
+  }
 
   // freep points to non-marked string
+  char* freep = (char*) p;
+  int nBytesRecovered = 0;
 
-  // repeat for all strings up to frontier
+  // For all strings up to frontier,
   // if marked, update forward = freep
   // if not marked, freep += size of string
+  while (p < frontier) {
+    if (is_marked(p)) {
+      p->forward = (String*) freep;
+      freep += required_space(p);
+    } else {
+      nBytesRecovered += required_space(p);
+    }
+    p = next_string(p);
+  }
 
   return nBytesRecovered;
 }
 
 void compactify_strings() {
-  // for all strings
-  // if marked and forward != self, move string
-  // clear marked
+  String* p = (String*) space;
+
+  // Find the first not-marked string;
+  // that is, the first avaiable free space
+  while (p < frontier) {
+    if (not_marked(p)) {
+      break;
+    }
+    clear_mark(p);
+    p = next_string(p);
+  }
+
+  String* q = p;
+  p = next_string(p);
+
+  // Relocate all following marked strings
+  while (p < frontier) {
+    if (is_marked(p)) {
+      clear_mark(p);
+      if (p != p->forward) {
+
+        // DEBUG
+        if (p->forward != q) {
+          LispError("compactify_strings: incomsistent forwarding address");
+        }
+
+        std::memcpy((char*) q, (char*) p, required_space(p));
+      }
+      q = next_string(q);
+    }
+    p = next_string(p);
+  }
+
+  frontier = q;
 }
+
+// -------------------------------------
+
+void audit_strings()
+{
+  String* p = (String*) space;
+  int nStrings = 0;
+
+  while (p < frontier) {
+    if (p->type != Tag::STRING_TAG) {
+      LispError("audit_strings: bad tag");
+    }
+    if (p->length != std::strlen(p->body)) {
+      LispError("audit_strings: bad length");
+    }
+    ++nStrings;
+    p = next_string(p);
+  }
+
+  std::cout << "audit_strings: Verified " << nStrings << " strings" << std::endl;
+}
+
 
 // -------------------------------------
 

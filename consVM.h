@@ -136,6 +136,8 @@ extern void init_atoms();
 extern Atom* atom(const char* p);
 extern void print(Atom* p);
 extern Atom* as_atom(Cell* p);
+extern void reset_chain();
+extern void insert_into_chain(Atom* p);
 extern void audit_atoms();
 
 extern void instr(Opcode oper, Cell* opand1 , Cell* opand2);
@@ -144,7 +146,8 @@ extern void print(Instr* in);
 
 extern void init_strings();
 extern String* intern_string(const char* s);
-void print(String* s);
+extern void print(String* s);
+extern void audit_strings();
 
 extern void init_stack();
 extern Cell* top();
@@ -183,7 +186,7 @@ extern void init_heap();
 extern Atom* alloc_atom();
 extern Cons* alloc_cons();
 extern Instr* alloc_instr();
-extern GCStatus gc();
+extern GCStatus gc(const char* context = NULL);
 extern int mark(Cell* p);
 extern int mark_stack();
 extern int sweep_strings();

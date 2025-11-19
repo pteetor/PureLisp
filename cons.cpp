@@ -89,6 +89,13 @@ void print(Cons* p)
 
 // -------------------------------------
 
+void audit_cons()
+{
+    // TBD
+}
+
+// -------------------------------------
+
 TEST_CASE("testing car()") {
   cons(nil, a_t);
   REQUIRE(car(top()) == nil);

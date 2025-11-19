@@ -176,7 +176,9 @@ TEST_CASE("bytecode for atom predicate") {
 
 TEST_CASE("bytecode for eq predicate") {
   Atom* hello = atom("hello");
+  push(hello);
   Atom* world = atom("world");
+  push(world);
 
   // EQ predicate - true case
   instr(Opcode::PUSH_SEXPR, hello, nil);
@@ -197,12 +199,15 @@ TEST_CASE("bytecode for eq predicate") {
 
   REQUIRE(is_nil(top()));
   drop(1);
+
+  drop(2);   // Drop atoms
 }
 
 TEST_CASE("if branches correctly") {
     Atom* correct = atom("correctBranch");
+    push(correct);
     Atom* wrong = atom("wrongBranch");
-
+    push(wrong);
 
     // "then" case
     instr(Opcode::PUSH_SEXPR, a_t, nil);
@@ -233,4 +238,6 @@ TEST_CASE("if branches correctly") {
 
     REQUIRE(top() == correct);
     drop(1);
+
+    drop(2);   // Drop atoms
 }

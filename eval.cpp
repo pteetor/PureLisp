@@ -212,36 +212,6 @@ static void pairlis(Cell* x, Cell* y, Cell* e)
   }
 
   collapse(3);
-  return;
-
-  // -------------------------
-
-  // if (x == nil && y == nil) {
-  //   push(e);
-  //   collapse(3);
-  //   return;
-  // }
-  //
-  // if (x == nil) {
-  //   return fatal("pairlis: Too many arguments");
-  // }
-  // if (y == nil) {
-  //   return fatal("pairlis: Missing arguments");
-  // }
-  //
-  // // Sanity check
-  // if (!is_atom(car(x))) {
-  //   fatal("pairlis: Non-atom in parameters");
-  // }
-  //
-  // push(x);
-  // push(y);
-  // push(e);
-  //
-  // cons(car(x), car(y));
-  // pairlis(cdr(x), cdr(y), e);
-  // cons();
-  // collapse(3);
 }
 
 static void evlis(Cell* m, Cell* a)
@@ -310,22 +280,26 @@ TEST_CASE("assoc() works") {
 
   assoc(name, env);
   REQUIRE(top() == value);
+
+  drop(1);
 }
 
 TEST_CASE("pairlis() works for simple environment") {
   Cell* name = atom("x");
   cons(name, nil);
-  Cell* params = pop();
+  Cell* params = top();
 
   Cell* value = atom("foo");
   cons(value, nil);
-  Cell* args = pop();
+  Cell* args = top();
 
   pairlis(params, args, nil);
-  Cell* env = pop();
+  Cell* env = top();
 
   assoc(name, env);
   REQUIRE(top() == value);
+
+  drop(4);
 }
 
 TEST_CASE("eval can evaluate an atom") {
@@ -337,6 +311,8 @@ TEST_CASE("eval can evaluate an atom") {
 
   eval();
   REQUIRE(top() == value);
+
+  drop(1);
 }
 
 // ((lambda () (quote foo))) should yield 'foo'

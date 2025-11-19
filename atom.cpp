@@ -31,8 +31,7 @@ static Atom* find_atom(const char* p);
 
 void init_atoms()
 {
-  // free_space = 0;
-  chain = NULL;
+  reset_chain();
 
   nil = atom("nil");
   a_t = atom("t");
@@ -85,3 +84,36 @@ void print(Atom* p)
 {
   print(p->string);
 }
+
+void reset_chain()
+{
+  chain = NULL;
+}
+
+void insert_into_chain(Atom* p)
+{
+  p->next = chain;
+  chain = p;
+}
+
+// -------------------------------------
+
+void audit_atoms()
+{
+    Atom* p = chain;
+    int n = 0;
+
+    while (p != NULL) {
+        if (p->type != Tag::ATOM_TAG) {
+            LispError("audit_atoms: bad tag");
+        }
+        if (p->string->type != Tag::STRING_TAG) {
+            LispError("audit_atoms: bad string pointer");
+        }
+        ++n;
+        p = p->next;
+    }
+
+    std::cout << "audit_atoms: Verified " << n << " atoms" << std::endl;
+}
+

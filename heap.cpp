@@ -8,7 +8,6 @@
 const int N_CELLS = 1000 * 1000;;
 
 static int sweep_heap();
-static void update_string_pointer(Cell* p);
 
 static Free heap[N_CELLS];
 static Free* free_list;
@@ -35,7 +34,7 @@ void init_heap()
 static Free* alloc_heap()
 {
   if (free_list == NULL) {
-    GCStatus status = gc();
+    GCStatus status = gc("heap exhausted");
     std::cout <<
       "gc: Heap size " << status.heap_size <<
         ", marked " << status.n_marked <<
@@ -73,9 +72,13 @@ Instr* alloc_instr()
 
 // -------------------------------------
 
-GCStatus gc()
+GCStatus gc(const char* context)
 {
-  std::cout << std::endl << "gc: Starting" << std::endl;
+  std::cout << std::endl << "gc: Starting";
+  if (context != NULL) {
+    std::cout << " - " << context;
+  }
+  std::cout << std::endl;
 
   int nMarked = mark(global_env);
   nMarked += mark_stack();
@@ -91,6 +94,11 @@ GCStatus gc()
 
   std::cout << "gc: Done" << std::endl;
 
+  // These can be removed when the code matures
+  audit_atoms();
+  audit_cons();
+  audit_strings();
+
   return GCStatus(N_CELLS, nMarked, nRecovered);
 }
 
@@ -101,13 +109,13 @@ int mark(Cell* p)
     throw LispError("gc: null pointer to mark", true);
   }
 
-  if ((p->flags & MARK_FLAG) != 0) {
+  if (is_marked(p)) {
     return 0;
   }
 
   int nMarked = 0;
 
-  p->flags |= MARK_FLAG;
+  set_mark(p);
   ++nMarked;
 
   switch (p->type) {
@@ -121,7 +129,7 @@ int mark(Cell* p)
   case Tag::ATOM_TAG:
   {
     Atom* a = (Atom*) p;
-    mark(a->string);
+    set_mark(a->string);
   }
     break;
   default:
@@ -133,31 +141,29 @@ int mark(Cell* p)
 
 static int sweep_heap()
 {
+  reset_chain();
   free_list = NULL;
   int nRecovered = 0;
 
   for (int i = 0; i < N_CELLS; ++i)
   {
     Free* p = &heap[i];
-    if ((p->flags & MARK_FLAG) == 0) {
+    if (not_marked(p)) {
+      p->type = Tag::FREE_TAG;
       p->next = free_list;
       free_list = p;
       ++nRecovered;
     } else {
-      p->flags &= ~MARK_FLAG;
-      update_string_pointer(p);
+      clear_mark(p);
+      if (is_atom(p)) {
+        Atom* q = as_atom(p);
+        q->string = q->string->forward;
+        insert_into_chain(q);
+      }
     }
   }
 
   return nRecovered;
-}
-
-static void update_string_pointer(Cell* p)
-{
-  if (p->type == Tag::ATOM_TAG) {
-    Atom* q = as_atom(p);
-    q->string = q->string->forward;
-  }
 }
 
 // -------------------------------------
@@ -181,4 +187,46 @@ void audit_heap()
 
 // -------------------------------------
 
-// UNIT TESTS HERE
+TEST_CASE("gc() is ok for globals") {
+  gc("gc() is ok for globals");
+
+  REQUIRE(nil->type == Tag::ATOM_TAG);
+  REQUIRE(a_t->type == Tag::ATOM_TAG);
+}
+
+TEST_CASE("gc() frees dead cons") {
+  cons(nil, nil);
+  Cell* dead = pop();
+
+  REQUIRE(dead->type == Tag::CONS_TAG);
+
+  gc("gc() frees dead cons");
+
+  REQUIRE(dead->type == Tag::FREE_TAG);
+}
+
+TEST_CASE("gc() leaves mark bits clear") {
+  Atom* gc_test_0 = atom("gc_test_0");
+  push(gc_test_0);
+
+  gc("gc() leaves mark bits clear");
+
+  REQUIRE(not_marked(nil));
+  REQUIRE(not_marked(a_t));
+  REQUIRE(not_marked(gc_test_0));
+  drop(1);
+}
+
+TEST_CASE("Strings can withstand garbage collection") {
+  Atom* gc_test_1 = atom("gc_test_1");
+  push(gc_test_1);
+  String* garbage = intern_string("garbage");   // Will be garbage-collected
+  Atom* gc_test_2 = atom("gc_test_2");
+  push(gc_test_2);
+
+  gc("Strings can withstand garbage collection");   // Should collect 'garbage' string
+
+  REQUIRE(std::strcmp(gc_test_1->string->body, "gc_test_1") == 0);
+  REQUIRE(std::strcmp(gc_test_2->string->body, "gc_test_2") == 0);
+  drop(2);
+}

@@ -18,8 +18,6 @@ void print(Cell* p)
     print((Instr*) p);
     break;
   default:
-    // DEBUG
-    std::cout << "Cell type: " << (int) (p->type) << std::endl;
     throw LispError("print: invalid cell type", true);
   }
 }

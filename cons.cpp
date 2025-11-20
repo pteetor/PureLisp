@@ -78,10 +78,7 @@ void print(Cons* p)
       q = r->cdr;
       break;
     default:
-      // DEBUG
-      std::cout << "Cell type: " << (int) (q->type) << std::endl;
-
-    throw LispError("print: invalid cell type", true);
+      throw LispError("print: invalid cell type", true);
     }
   }
   std::cout << ")";

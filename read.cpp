@@ -220,6 +220,5 @@ static bool fill_buffer()
     }
   }
 
-  std::cout << std::endl << "End of file" << std::endl;   // DEBUG
   return false;
 }

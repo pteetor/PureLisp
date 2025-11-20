@@ -145,15 +145,15 @@ void compactify_strings() {
   String* q = p;
   p = next_string(p);
 
-  // Relocate all following marked strings
+  // Relocate all subsequent marked strings
   while (p < frontier) {
     if (is_marked(p)) {
       clear_mark(p);
       if (p != p->forward) {
 
-        // DEBUG
+        // Sanity check
         if (p->forward != q) {
-          LispError("compactify_strings: incomsistent forwarding address");
+          LispError("compactify_strings: inconsistent forwarding address");
         }
 
         std::memcpy((char*) q, (char*) p, required_space(p));

@@ -60,7 +60,6 @@ static bool is_valid_tag(Tag t)
   case Tag::ATOM_TAG:
   case Tag::CONS_TAG:
   case Tag::STRING_TAG:
-  case Tag::INSTR:
     return true;
   default:
     return false;

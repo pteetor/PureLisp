@@ -14,9 +14,6 @@ void print(Cell* p)
   case Tag::CONS_TAG:
     print((Cons*) p);
     break;
-  case Tag::INSTR:
-    print((Instr*) p);
-    break;
   default:
     throw LispError("print: invalid cell type", true);
   }

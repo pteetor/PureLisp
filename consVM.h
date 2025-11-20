@@ -24,8 +24,7 @@ enum class Tag : uint8_t {
   FREE_TAG = 0,
     ATOM_TAG = 1,
     CONS_TAG = 2,
-    STRING_TAG = 3,
-    INSTR = 4
+    STRING_TAG = 3
 };
 
 enum class Opcode : uint8_t {
@@ -44,7 +43,7 @@ enum class Opcode : uint8_t {
 struct Cell
 {
   Tag type;
-  Opcode oper;        // used only for type == INSTR
+  Opcode oper;        // reserved for possible bytecode interpreter
   uint16_t flags;
 };
 
@@ -60,7 +59,6 @@ inline void clear_mark(Cell* p) { p->flags &= ~MARK_FLAG; }
 struct String;
 struct Atom;
 struct Cons;
-struct Instr;
 struct Free;
 
 struct String: public Cell
@@ -83,17 +81,7 @@ struct Cons: public Cell
   Cell* cdr;
 };
 
-// One instruction in the virrtual machine
-struct Instr: public Cell
-{
-  union {
-  int n1;
-  Cell* opand1;
-};
-  Cell* opand2;
-};
-
-// Must have: sizeof(Cons) == sizeof(Atom) == sizeof(Instr) == sizeof(Free)
+// Must have: sizeof(Cons) == sizeof(Atom) == sizeof(Free)
 struct Free: public Cell
 {
   Free* next;
@@ -103,7 +91,6 @@ struct Free: public Cell
 inline bool is_string(Cell* p) { return (p->type == Tag::STRING_TAG); }
 inline bool is_atom(Cell* p) { return (p->type == Tag::ATOM_TAG); }
 inline bool is_cons(Cell* p) { return (p->type == Tag::CONS_TAG); }
-inline bool is_instr(Cell* p) { return p->type == Tag::INSTR; }
 
 //
 // Global atoms
@@ -138,10 +125,6 @@ extern void print(Atom* p);
 extern Atom* as_atom(Cell* p);
 extern void sweep_atoms();
 extern void audit_atoms();
-
-extern void instr(Opcode oper, Cell* opand1 , Cell* opand2);
-extern void instr(Opcode oper);
-extern void print(Instr* in);
 
 extern void init_strings();
 extern String* intern_string(const char* s);
@@ -184,7 +167,6 @@ struct GCStatus {
 extern void init_heap();
 extern Atom* alloc_atom();
 extern Cons* alloc_cons();
-extern Instr* alloc_instr();
 extern GCStatus gc(const char* context = NULL);
 extern int mark(Cell* p);
 extern int mark_stack();

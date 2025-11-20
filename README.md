@@ -1,4 +1,4 @@
-# ConsVM
+# PureLisp
 
-This is a bare-bones, MVP implementation of a LISP subset. The project
-goal is to be a testbed for garbage collection of a "cons" heap.
+This is a bare-bones, MVP implementation of the pure LISP dialect
+as described in the Lisp 1.5 Programmer's Manual.
